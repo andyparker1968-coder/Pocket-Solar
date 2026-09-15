@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1a3034">
+    <meta name="description" content="Estimate how much your solar setup could save by offsetting average home electricity usage.">
+    <title>Pocket Solar</title>
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAArlBMVEXm5eLi4d3kzsPj2Mvt0LLwzJDotVHYs5vc4uHa2tbh3tnxz23uxlner0TKuKzQdkrf4N7WelLJycbssXHM1NTXxLjml2vVk2vsuI22iHXcilu1mIrVs2naxY3pp3myrajXmTi3o5rpqoPV0s2ybE7njVDRs5DomGjTzcvni1atfGjVjlXGajm2ZDm5t7TXbjnldTbsgT6xVy6ZXUe0sa2hUzKlk4qsrKm+wL2alpM164w9AAAAAW9yTlQBz6J3mgAAAcVJREFUOMu1012TmyAUBmBdURcwoqDGaMpG0aiJH6lxk/r//1gJ6Wy7jr3a2dfL83DgwKhp3xD9Iy+Gpq8WVAAwLfsV/qeOEATY2bjwD9CXyyFCAGPienCt+aOBbgDT9ClaBR70NN0wMfODVYAQMkLvxcTRFsIV4BkAxNErwCzaPcFyAyAHdLBpxUmqwKK/BCbA+x+Yx/7bAyzG83Qoj3/IYM5j4i4BMgx5tjh2iCvynBd0ATSTxaV1dDAjNOS8WgCkw5gx51gzFpEAVLw5wU9AgybjzsENeR6dArvi/u4vkHeDhLm3HKugYZQnO5hXFUk/gKbL3Td7t8TnIrAjLku8qdrsCeQHsMXYxrWbijzWRiSDVdl0vQJyNOAcz5bT0bishhRGjSyJsiw7qgAvrcMxTLayeVQ2bSYS3+9oePl5KZ7gXLKxt89Je4KJX3Z9SC7DlYZpmk1CATIM7/RIzt1O+MNlpPZAyCmAlNaqLrS2ba9025H3WzgMci2d7tMvIVRVdRjH8doXY3Gdp9ttnqd+mqZeJaRUMi1Lb3N/n+f5Pt0feVOZFFMAikA2rGv6OXVdC7WRJi8ZrkY8889zo2cW7uu/8m9PODaP3CdSkwAAAABJRU5ErkJggg==" />
+    <style>
+      :root {
+        --background: #f5f0e8;
+        --foreground: #22383c;
+        --card: #fbfaf7;
+        --border: #ded8cc;
+        --muted: #eee9df;
+        --muted-foreground: #6d7c7d;
+        --primary: #2e7f73;
+        --primary-dark: #1a3034;
+        --primary-foreground: #fbfaf7;
+        --secondary: #eee5d7;
+        --accent: #ef927e;
+        --shadow: 0 16px 35px rgba(25, 50, 53, .1);
+         /* All text families are aliases for the selected appearance font.
+            Keeping the aliases means the compact styles below can retain their
+            intended size/weight while still responding to the font control. */
+         --serif: Georgia, "Times New Roman", serif;
+         --sans: Arial, Helvetica, sans-serif;
+         --mono: "Courier New", Courier, monospace;
+      }
+      * { box-sizing: border-box; }
+      html { min-height: 100%; min-height: -webkit-fill-available; background: var(--background); }
+      body { min-height: 100vh; min-height: -webkit-fill-available; min-height: 100svh; margin: 0; background: var(--background); color: var(--foreground); font-family: var(--sans); }
+      body, button, input, select, textarea, svg, svg text { font-family: var(--sans); }
+      button, input, select { font: inherit; }
+      button { cursor: pointer; }
+      .shell { min-height: 100vh; min-height: -webkit-fill-available; min-height: 100svh; background: var(--background); }
+      .content { width: 100%; min-height: 100vh; min-height: -webkit-fill-available; min-height: 100svh; margin: 0 auto; padding: 24px 28px 56px; background: var(--background); }
+      .mobile-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 44px; }
+      .brand { display: flex; align-items: center; gap: 11px; }
+      .brand-mark { width: 40px; height: 40px; border-radius: 14px; overflow: hidden; flex: 0 0 auto; background: transparent; }
+      .brand-mark img { display: block; width: 100%; height: 100%; object-fit: cover; }
+      .brand-name { font: 600 22px/1 var(--serif); letter-spacing: -.04em; }
+      .pill { padding: 7px 12px; border-radius: 999px; background: var(--muted); color: var(--muted-foreground); font: 10px var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+      .intro { display: flex; align-items: end; justify-content: space-between; gap: 32px; }
+      .eyebrow, .section-label, .stat-label { color: var(--muted-foreground); font: 10px var(--mono); letter-spacing: .2em; text-transform: uppercase; }
+      h1, h2 { margin: 0; font-family: var(--serif); font-weight: 600; letter-spacing: -.055em; }
+      h1 { max-width: 760px; margin-top: 12px; font-size: clamp(42px, 6vw, 70px); line-height: .96; }
+      h2 { font-size: 27px; line-height: 1.1; }
+      .intro-copy { max-width: 510px; margin: 16px 0 0; color: var(--muted-foreground); font-size: 14px; line-height: 1.6; }
+      .daylight { width: 310px; padding: 20px; border: 1px solid var(--border); border-radius: 24px; background: var(--card); }
+      .daylight strong { display: block; margin-top: 20px; font: 600 30px/1 var(--serif); letter-spacing: -.05em; }
+      .daylight p { margin: 8px 0 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.45; }
+      .main-grid { display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(340px, .96fr); gap: 28px; margin-top: 40px; }
+      .card { border: 1px solid var(--border); border-radius: 28px; background: var(--card); box-shadow: 0 5px 12px rgba(25, 50, 53, .06); }
+      .setup { padding: 28px; }
+      .setup summary { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; list-style: none; cursor: pointer; }
+      .setup summary::-webkit-details-marker { display: none; }
+      .setup summary:focus-visible { outline: 3px solid rgba(239, 146, 126, .75); outline-offset: 4px; border-radius: 8px; }
+      .setup summary h2 { margin-top: 8px; }
+      .chevron { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; border-radius: 16px; background: var(--secondary); color: var(--primary); font-size: 20px; transition: transform .2s; }
+      .setup:not([open]) .chevron { transform: rotate(-90deg); }
+      .setup-body { margin-top: 24px; }
+      .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+      .field.full { grid-column: 1 / -1; }
+      label, .derived-label { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 13px; font-weight: 700; }
+      label span, .derived-label span { color: var(--muted-foreground); font: 9px var(--mono); font-weight: 400; letter-spacing: .12em; text-transform: uppercase; }
+      input, .derived { width: 100%; min-height: 53px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); color: var(--foreground); padding: 0 16px; font: 500 16px var(--mono); }
+      input:focus { outline: 2px solid rgba(46, 127, 115, .24); border-color: var(--primary); }
+      .input-wrap { position: relative; display: flex; align-items: center; }
+      .input-wrap input { padding-right: 62px; }
+      .prefix input { padding-left: 34px; }
+      .prefix::before { content: "£"; position: absolute; left: 16px; color: var(--muted-foreground); font: 15px var(--mono); z-index: 1; }
+      .suffix { position: absolute; right: 16px; color: var(--muted-foreground); font: 11px var(--mono); }
+      .hint { margin: 6px 0 0; color: var(--muted-foreground); font-size: 11px; line-height: 1.4; }
+      .fixed-window, .derived { display: flex; align-items: center; justify-content: space-between; background: var(--card); }
+      .fixed-window strong { font: 500 15px var(--mono); }
+      .fixed-window em { padding: 5px 10px; border-radius: 999px; background: var(--card); color: var(--primary); font: 10px var(--mono); font-style: normal; }
+      .setup-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(222, 216, 204, .75); }
+      .setup-footer p { max-width: 280px; margin: 0; color: var(--muted-foreground); font-size: 11px; line-height: 1.45; }
+      .reset { min-height: 44px; padding: 0 12px; border: 0; border-radius: 12px; background: transparent; color: var(--muted-foreground); font-size: 12px; font-weight: 700; }
+      .reset:hover { background: var(--muted); color: var(--foreground); }
+      .results { display: flex; flex-direction: column; gap: 20px; }
+      .benefit { position: relative; overflow: hidden; padding: 32px; border-radius: 28px; background: var(--primary); color: var(--primary-foreground); box-shadow: var(--shadow); }
+      .benefit::after, .potential::after { content: ""; position: absolute; top: -48px; right: -40px; width: 144px; height: 144px; border: 18px solid rgba(239, 146, 126, .26); border-radius: 50%; }
+      .benefit-inner, .potential > * { position: relative; z-index: 1; }
+      .benefit-top { display: flex; align-items: center; justify-content: space-between; }
+      .benefit .section-label, .potential .section-label { color: rgba(251, 250, 247, .66); }
+      .arrow { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(239, 146, 126, .2); color: var(--accent); font-size: 18px; }
+      .amount { margin: 40px 0 0; font: 600 clamp(50px, 7vw, 86px)/1 var(--serif); letter-spacing: -.075em; }
+      .benefit-copy { max-width: 290px; margin: 12px 0 0; color: rgba(251, 250, 247, .7); font-size: 13px; line-height: 1.5; }
+      .breakdown { padding: 24px; }
+      .breakdown-head { display: flex; justify-content: space-between; }
+      .breakdown-head span { color: var(--muted-foreground); font: 10px var(--mono); }
+      .breakdown-rows { margin-top: 20px; }
+      .row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 12px 0; font-size: 12px; }
+      .row span { color: var(--muted-foreground); }
+      .row strong { font: 600 12px var(--mono); text-align: right; }
+      .row.total { padding-top: 12px; border-top: 1px solid rgba(222, 216, 204, .75); }
+      .formula { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(222, 216, 204, .75); color: var(--muted-foreground); font: 10px/1.6 var(--mono); }
+      .formula strong { display: block; margin-top: 4px; color: var(--primary); font-weight: 500; }
+      .potential { position: relative; overflow: hidden; margin-top: 28px; border-radius: 28px; background: var(--primary); color: var(--primary-foreground); box-shadow: var(--shadow); }
+      .potential-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding: 24px 28px; border-bottom: 1px solid rgba(251, 250, 247, .18); }
+      .potential-head p { max-width: 330px; margin: 0; color: rgba(251, 250, 247, .7); font-size: 11px; line-height: 1.5; }
+      .stats { display: grid; grid-template-columns: repeat(3, 1fr); }
+      .stat { padding: 24px 28px; }
+      .stat + .stat { border-left: 1px solid rgba(251, 250, 247, .18); }
+      .stat-label { color: rgba(251, 250, 247, .62); }
+      .stat strong { display: block; margin-top: 12px; font: 600 32px/1 var(--serif); letter-spacing: -.05em; }
+      .stat p { margin: 5px 0 0; color: rgba(251, 250, 247, .7); font-size: 11px; }
+      footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(222, 216, 204, .7); color: var(--muted-foreground); font-size: 11px; line-height: 1.5; }
+      footer p { margin: 0; }
+      footer .version { color: rgba(109, 124, 125, .72); font: 9px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
+      .appearance-tools { margin-top: 24px; text-align: center; }
+      .appearance-link { border: 0; background: transparent; padding: 8px; color: var(--primary); font: 600 11px var(--mono); text-decoration: underline; text-underline-offset: 3px; }
+      .appearance-link:focus-visible { outline: 3px solid rgba(46, 127, 115, .3); outline-offset: 3px; border-radius: 6px; }
+      .appearance-panel { width: 100%; margin: 10px auto 0; border: 1px solid var(--border); border-radius: 18px; background: var(--card); padding: 18px; text-align: left; box-shadow: var(--shadow); }
+      .appearance-panel[hidden] { display: none; }
+      .appearance-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+      .appearance-grid input[type="color"] { height: 42px; padding: 4px; }
+      .appearance-grid select { width: 100%; min-height: 42px; border: 1px solid var(--border); border-radius: 13px; background: var(--card); color: var(--foreground); padding: 0 11px; }
+      .appearance-grid select:focus, .appearance-grid input[type="color"]:focus { outline: 2px solid rgba(46, 127, 115, .24); border-color: var(--primary); }
+      .appearance-grid .check-field { display: flex; flex-direction: column; }
+      .appearance-grid .check-line { display: flex; align-items: center; gap: 8px; min-height: 42px; margin: 0; border: 1px solid var(--border); border-radius: 13px; background: var(--card); padding: 10px 11px; font-size: 12px; font-weight: 500; }
+      .appearance-grid .check-line input { width: 17px; min-height: 17px; margin: 0; padding: 0; accent-color: var(--primary); }
+      .appearance-actions { display: flex; justify-content: flex-end; margin-top: 14px; }
+       .heading-bold :is(h1, h2, h3, h4, h5, h6, [role="heading"]), .heading-bold :is(.eyebrow, .section-label, .stat-label), .heading-bold :is(label, .derived-label), .heading-bold .brand-name, .heading-bold .daylight strong, .heading-bold .amount, .heading-bold .stat strong, .heading-bold .row.total strong, .heading-bold .formula strong { font-weight: 800 !important; }
+      @media (max-width: 900px) {
+        .intro { display: block; }
+        .daylight { display: none; }
+        .main-grid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 560px) {
+        .content { padding: 20px 12px 48px; }
+        .mobile-header { margin-bottom: 42px; }
+        .main-grid { margin-top: 40px; }
+        .setup { padding: 20px; }
+        .fields { grid-template-columns: 1fr; gap: 18px; }
+        .field.full { grid-column: auto; }
+        .setup-footer, footer { align-items: flex-start; flex-direction: column; }
+        .benefit { padding: 24px; }
+        .breakdown { padding: 20px; }
+        .potential-head { align-items: flex-start; flex-direction: column; padding: 20px; }
+        .stats { display: block; }
+        .stat { padding: 24px 20px; }
+        .stat + .stat { border-top: 1px solid rgba(251, 250, 247, .18); border-left: 0; }
+        .appearance-grid { grid-template-columns: 1fr 1fr; }
+      }
+      @media (max-width: 450px) {
+        .appearance-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <main class="content">
+        <header class="mobile-header">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true">
+              <img src="data:image/png;base64,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" alt="" />
+            </span>
+            <span class="brand-name">Pocket Solar</span>
+          </div>
+          <span class="pill">Calculator</span>
+        </header>
+
+        <section class="intro">
+          <div>
+            <p class="eyebrow">Solar calculator</p>
+            <h1>Your solar savings.</h1>
+            <p class="intro-copy">See how much your panels could save at home, earn from exported energy, and deliver over a month or a year.</p>
+          </div>
+          <div class="daylight">
+            <span class="eyebrow">The daylight window</span>
+            <strong id="daylightHours">6 hours</strong>
+            <p>Useful daylight hours used in the estimate.</p>
+          </div>
+        </section>
+
+        <section class="main-grid">
+          <details class="card setup" open>
+            <summary>
+              <div>
+                <p class="section-label">01 — Your setup</p>
+                <h2>A few figures.</h2>
+              </div>
+              <span class="chevron" aria-hidden="true">⌃</span>
+            </summary>
+            <div class="setup-body">
+              <div class="fields">
+                <div class="field">
+                  <label for="totalSolar">Total amount of solar <span>Panel capacity</span></label>
+                  <div class="input-wrap"><input id="totalSolar" type="number" min="0" step="any" value="4000"><span class="suffix">W</span></div>
+                  <p class="hint">Panel capacity</p>
+                </div>
+                <div class="field">
+                  <label for="effectiveOutput">Average effective output <span>Real-world average</span></label>
+                  <div class="input-wrap"><input id="effectiveOutput" type="number" min="0" step="any" value="3200"><span class="suffix">W</span></div>
+                  <p class="hint">Real-world average</p>
+                </div>
+                <div class="field full">
+                  <label for="outputHours">Solar output hours <span>Useful daylight</span></label>
+                  <div class="input-wrap"><input id="outputHours" type="number" min="0" step="any" value="6"><span class="suffix">hours</span></div>
+                  <p class="hint">Hours of useful daylight</p>
+                </div>
+                <div class="field">
+                  <label for="homeUsage">Average home usage per hour <span>What home draws each hour</span></label>
+                  <div class="input-wrap"><input id="homeUsage" type="number" min="0" step="any" value="1000"><span class="suffix">W</span></div>
+                  <p class="hint">What home draws each hour</p>
+                </div>
+                <div class="field">
+                  <label for="costPerKwh">Cost per 1,000 W (1 kW) <span>25p = £0.25 / kWh</span></label>
+                  <div class="input-wrap prefix"><input id="costPerKwh" type="number" min="0" step="any" value="0.00"></div>
+                  <p class="hint">25p = £0.25 / kWh</p>
+                </div>
+                <div class="field">
+                  <label for="feedInTariff">Feed-in tariff <span>Rate paid for exported energy</span></label>
+                  <div class="input-wrap prefix"><input id="feedInTariff" type="number" min="0" step="any" value="0.12"><span class="suffix">/ kWh</span></div>
+                  <p class="hint">12p = £0.12 / kWh</p>
+                </div>
+                <div class="field">
+                  <div class="derived-label">Total feed-in watts (kW) <span>Calculated</span></div>
+                  <output class="derived" id="feedInKw">2.2 kW</output>
+                  <p class="hint">Surplus solar after home usage</p>
+                </div>
+              </div>
+              <div class="setup-footer">
+                <p>Your figures stay in this browser. No account, no upload, no fuss.</p>
+                <button class="reset" type="button" id="reset">↻ &nbsp; Reset figures</button>
+              </div>
+            </div>
+          </details>
+
+          <div class="results">
+            <section class="benefit">
+              <div class="benefit-inner">
+                <div class="benefit-top"><p class="section-label">02 — Daily total benefit</p><span class="arrow">↑</span></div>
+                <p class="amount" id="totalBenefit">£0.02</p>
+                <p class="benefit-copy" id="benefitCopy">Home-use savings plus earnings from surplus energy exported in one day.</p>
+              </div>
+            </section>
+            <section class="card breakdown">
+              <div class="breakdown-head"><span class="section-label">The quick breakdown</span><span>GBP / day</span></div>
+              <div class="breakdown-rows">
+                <div class="row"><span>Solar used at home</span><strong id="homeCovered">1,000 W</strong></div>
+                <div class="row"><span>Grid cost × output hours</span><strong id="rateHours">£0.00 / kWh × 6 hrs</strong></div>
+                <div class="row"><span>Total feed-in watts</span><strong id="feedInBreakdown">2.2 kW</strong></div>
+                <div class="row"><span>Feed-in earnings</span><strong id="feedInEarnings">£0.02</strong></div>
+                <div class="row total"><strong>Total benefit</strong><strong id="totalBreakdown">£0.02</strong></div>
+                <div class="formula">Home savings = (solar used at home / 1,000) × (grid cost per kWh × output hours)<strong id="homeFormula">(1,000 ÷ 1,000) × (£0.00 × 6)</strong>Feed-in earnings = surplus (kW) × feed-in tariff (£/kWh) × output hours<strong id="feedFormula">(2.2 × £0.12 × 6)</strong></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="potential">
+          <div class="potential-head">
+            <div><p class="section-label">03 — Potential savings</p><h2>Your longer-term picture.</h2></div>
+            <p>Based on the same daily output repeating. Includes home-use savings and feed-in earnings.</p>
+          </div>
+          <div class="stats">
+            <div class="stat"><span class="stat-label">One day</span><strong id="dailyBenefit">£0.02</strong><p>Your daily estimated benefit</p></div>
+            <div class="stat"><span class="stat-label">30 days</span><strong id="monthlyBenefit">£0.48</strong><p>Daily benefit × 30</p></div>
+            <div class="stat"><span class="stat-label">One year</span><strong id="annualBenefit">£5.78</strong><p>Daily benefit × 365</p></div>
+          </div>
+        </section>
+
+        <div class="appearance-tools">
+          <button type="button" class="appearance-link" id="appearance-toggle" aria-expanded="false" aria-controls="appearance-panel">Customise appearance</button>
+          <div class="appearance-panel" id="appearance-panel" hidden>
+            <div class="appearance-grid">
+              <div class="field"><label for="theme-background">Background</label><input id="theme-background" type="color" aria-describedby="appearance-help"></div>
+              <div class="field"><label for="theme-card">Panels</label><input id="theme-card" type="color" aria-describedby="appearance-help"></div>
+              <div class="field"><label for="theme-text">Text</label><input id="theme-text" type="color" aria-describedby="appearance-help"></div>
+              <div class="field"><label for="theme-accent">Accent color</label><input id="theme-accent" type="color" aria-describedby="appearance-help"></div>
+              <div class="field"><label for="theme-font">Font style</label><select id="theme-font"><option value="classic">Classic</option><option value="modern">Modern</option><option value="rounded">Rounded</option><option value="mono">Monospace</option></select></div>
+              <div class="field check-field">
+                <label for="theme-heading-bold">Bold headings</label>
+                <label class="check-line"><input id="theme-heading-bold" type="checkbox"><span>Use heavier headings</span></label>
+              </div>
+            </div>
+            <p id="appearance-help" class="hint">Your appearance choices are saved in this browser and do not change your calculator figures.</p>
+            <div class="appearance-actions"><button type="button" class="reset" id="appearance-reset">Reset appearance</button></div>
+          </div>
+        </div>
+
+        <footer><p>A planning estimate, not a bill. Actual generation changes with weather, shade, and the season.</p><p class="version">Pocket Solar · standalone</p></footer>
+      </main>
+    </div>
+    <script>
+      (function () {
+        var ids = ['totalSolar', 'effectiveOutput', 'outputHours', 'homeUsage', 'costPerKwh', 'feedInTariff'];
+        var defaults = { totalSolar: '4000', effectiveOutput: '3200', outputHours: '6', homeUsage: '1000', costPerKwh: '0.00', feedInTariff: '0.12' };
+        var money = function (value) {
+          return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value));
+        };
+        var number = function (value, digits) {
+          return new Intl.NumberFormat('en-GB', { maximumFractionDigits: digits == null ? 2 : digits }).format(value);
+        };
+        var read = function (id) { return Number(document.getElementById(id).value); };
+        var set = function (id, value) { document.getElementById(id).textContent = value; };
+        var update = function () {
+          var valid = ids.every(function (id) {
+            var raw = document.getElementById(id).value;
+            return raw.trim() !== '' && Number.isFinite(Number(raw)) && Number(raw) >= 0;
+          });
+          if (!valid) {
+            ['totalBenefit', 'dailyBenefit', 'monthlyBenefit', 'annualBenefit', 'homeCovered', 'rateHours', 'feedInKw', 'feedInBreakdown', 'feedInEarnings', 'totalBreakdown', 'homeFormula', 'feedFormula'].forEach(function (id) { set(id, '—'); });
+            set('benefitCopy', 'Complete the figures to see your estimate.');
+            return;
+          }
+          var outputHours = read('outputHours');
+          var effective = read('effectiveOutput');
+          var usage = read('homeUsage');
+          var covered = Math.min(effective, usage);
+          var cost = read('costPerKwh');
+          var tariff = read('feedInTariff');
+          var homeSavings = covered / 1000 * cost * outputHours;
+          var surplusKw = Math.max(effective - usage, 0) / 1000;
+          var earnings = surplusKw * tariff * outputHours;
+          var total = homeSavings + earnings;
+          set('totalBenefit', money(total));
+          set('daylightHours', number(outputHours, 2) + ' hours');
+          set('dailyBenefit', money(total));
+          set('monthlyBenefit', money(total * 30));
+          set('annualBenefit', money(total * 365));
+          set('homeCovered', number(covered) + ' W');
+          set('rateHours', money(cost) + ' / kWh × ' + number(outputHours, 2) + ' hrs');
+          set('feedInKw', number(surplusKw, 3) + ' kW');
+          set('feedInBreakdown', number(surplusKw, 3) + ' kW');
+          set('feedInEarnings', money(earnings));
+          set('totalBreakdown', money(total));
+          set('homeFormula', '(' + number(covered) + ' ÷ 1,000) × (' + money(cost) + ' × ' + number(outputHours, 2) + ')');
+          set('feedFormula', '(' + number(surplusKw, 3) + ' × £' + number(tariff, 2) + ' × ' + number(outputHours, 2) + ')');
+          set('benefitCopy', effective < usage ? 'Home-use savings for one day, based on ' + number(outputHours, 0) + ' useful daylight hours.' : 'Home-use savings plus earnings from surplus energy exported in one day.');
+          try { localStorage.setItem('pocket-solar-standalone', JSON.stringify(ids.reduce(function (all, id) { all[id] = document.getElementById(id).value; return all; }, {}))); } catch (_) {}
+        };
+        try {
+          var saved = JSON.parse(localStorage.getItem('pocket-solar-standalone') || 'null');
+          if (saved) ids.forEach(function (id) { if (saved[id] != null) document.getElementById(id).value = saved[id]; });
+        } catch (_) {}
+        ids.forEach(function (id) { document.getElementById(id).addEventListener('input', update); });
+        document.getElementById('reset').addEventListener('click', function () {
+          ids.forEach(function (id) { document.getElementById(id).value = defaults[id]; });
+          try { localStorage.removeItem('pocket-solar-standalone'); } catch (_) {}
+          update();
+        });
+        update();
+      }());
+    </script>
+    <script>
+      (function () {
+        var appearanceDefaults = {
+          background: '#f5f0e8',
+          card: '#fbfaf7',
+          text: '#22383c',
+          accent: '#2e7f73',
+          font: 'classic',
+          headingBold: false
+        };
+        var appearanceKey = 'pocket-solar-appearance';
+        var fontOptions = { classic: true, modern: true, rounded: true, mono: true };
+        var hexColor = /^#[0-9a-f]{6}$/i;
+        var appearance = {};
+        var root = document.documentElement.style;
+        var validColor = function (value, fallback) { return hexColor.test(String(value || '')) ? value : fallback; };
+        var loadAppearance = function () {
+          var saved = null;
+          try { saved = JSON.parse(localStorage.getItem(appearanceKey) || 'null'); } catch (_) {}
+          saved = saved && typeof saved === 'object' ? saved : {};
+          return {
+            background: validColor(saved.background, appearanceDefaults.background),
+            card: validColor(saved.card, appearanceDefaults.card),
+            text: validColor(saved.text, appearanceDefaults.text),
+            accent: validColor(saved.accent, appearanceDefaults.accent),
+            font: fontOptions[saved.font] ? saved.font : appearanceDefaults.font,
+            headingBold: Boolean(saved.headingBold)
+          };
+        };
+        var applyAppearance = function () {
+          var fonts = {
+             classic: 'Georgia, "Times New Roman", serif',
+             modern: '"Helvetica Neue", Arial, sans-serif',
+             rounded: '"Trebuchet MS", "Arial Rounded MT Bold", sans-serif',
+             mono: '"Courier New", Courier, monospace'
+          };
+          root.setProperty('--background', appearance.background);
+          root.setProperty('--card', appearance.card);
+          root.setProperty('--foreground', appearance.text);
+          root.setProperty('--primary', appearance.accent);
+           // The page uses three aliases (sans, serif and mono) for different
+           // typographic roles. Set every alias together so no role stays on a
+           // stale family when the user changes the appearance font.
+           var selectedFont = fonts[appearance.font];
+           root.setProperty('--sans', selectedFont);
+           root.setProperty('--serif', selectedFont);
+           root.setProperty('--mono', selectedFont);
+           document.querySelector('meta[name="theme-color"]').setAttribute('content', appearance.background);
+          document.body.classList.toggle('heading-bold', appearance.headingBold);
+          document.getElementById('theme-background').value = appearance.background;
+          document.getElementById('theme-card').value = appearance.card;
+          document.getElementById('theme-text').value = appearance.text;
+          document.getElementById('theme-accent').value = appearance.accent;
+          document.getElementById('theme-font').value = appearance.font;
+          document.getElementById('theme-heading-bold').checked = appearance.headingBold;
+        };
+        var saveAppearance = function () {
+          appearance = {
+            background: validColor(document.getElementById('theme-background').value, appearanceDefaults.background),
+            card: validColor(document.getElementById('theme-card').value, appearanceDefaults.card),
+            text: validColor(document.getElementById('theme-text').value, appearanceDefaults.text),
+            accent: validColor(document.getElementById('theme-accent').value, appearanceDefaults.accent),
+            font: fontOptions[document.getElementById('theme-font').value] ? document.getElementById('theme-font').value : appearanceDefaults.font,
+            headingBold: document.getElementById('theme-heading-bold').checked
+          };
+          try { localStorage.setItem(appearanceKey, JSON.stringify(appearance)); } catch (_) {}
+          applyAppearance();
+        };
+        appearance = loadAppearance();
+        applyAppearance();
+        document.getElementById('appearance-toggle').addEventListener('click', function () {
+          var panel = document.getElementById('appearance-panel');
+          var open = panel.hidden = !panel.hidden;
+          this.setAttribute('aria-expanded', String(open));
+          this.textContent = open ? 'Hide appearance settings' : 'Customise appearance';
+        });
+        ['theme-background', 'theme-card', 'theme-text', 'theme-accent', 'theme-font', 'theme-heading-bold'].forEach(function (id) {
+          var control = document.getElementById(id);
+          control.addEventListener('input', saveAppearance);
+          control.addEventListener('change', saveAppearance);
+        });
+        document.getElementById('appearance-reset').addEventListener('click', function () {
+          appearance = { ...appearanceDefaults };
+          try { localStorage.setItem(appearanceKey, JSON.stringify(appearance)); } catch (_) {}
+          applyAppearance();
+        });
+      }());
+    </script>
+    <script>
+      (function () {
+        var sharedIcon = "data:image/png;base64,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";
+        document.querySelectorAll('link[rel="icon"]').forEach(function (element) { element.href = sharedIcon; });
+        document.querySelectorAll(".brand-mark img").forEach(function (element) { element.src = sharedIcon; });
+      }());
+    </script>
+  </body>
+</html>
