@@ -7,6 +7,9 @@
     <meta name="description" content="Estimate how much your solar setup could save by offsetting average home electricity usage.">
     <title>Pocket Solar</title>
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAArlBMVEXm5eLi4d3kzsPj2Mvt0LLwzJDotVHYs5vc4uHa2tbh3tnxz23uxlner0TKuKzQdkrf4N7WelLJycbssXHM1NTXxLjml2vVk2vsuI22iHXcilu1mIrVs2naxY3pp3myrajXmTi3o5rpqoPV0s2ybE7njVDRs5DomGjTzcvni1atfGjVjlXGajm2ZDm5t7TXbjnldTbsgT6xVy6ZXUe0sa2hUzKlk4qsrKm+wL2alpM164w9AAAAAW9yTlQBz6J3mgAAAcVJREFUOMu1012TmyAUBmBdURcwoqDGaMpG0aiJH6lxk/r//1gJ6Wy7jr3a2dfL83DgwKhp3xD9Iy+Gpq8WVAAwLfsV/qeOEATY2bjwD9CXyyFCAGPienCt+aOBbgDT9ClaBR70NN0wMfODVYAQMkLvxcTRFsIV4BkAxNErwCzaPcFyAyAHdLBpxUmqwKK/BCbA+x+Yx/7bAyzG83Qoj3/IYM5j4i4BMgx5tjh2iCvynBd0ATSTxaV1dDAjNOS8WgCkw5gx51gzFpEAVLw5wU9AgybjzsENeR6dArvi/u4vkHeDhLm3HKugYZQnO5hXFUk/gKbL3Td7t8TnIrAjLku8qdrsCeQHsMXYxrWbijzWRiSDVdl0vQJyNOAcz5bT0bishhRGjSyJsiw7qgAvrcMxTLayeVQ2bSYS3+9oePl5KZ7gXLKxt89Je4KJX3Z9SC7DlYZpmk1CATIM7/RIzt1O+MNlpPZAyCmAlNaqLrS2ba9025H3WzgMci2d7tMvIVRVdRjH8doXY3Gdp9ttnqd+mqZeJaRUMi1Lb3N/n+f5Pt0feVOZFFMAikA2rGv6OXVdC7WRJi8ZrkY8889zo2cW7uu/8m9PODaP3CdSkwAAAABJRU5ErkJggg==" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon.png?v=chart-icon-20260922">
+    <link rel="shortcut icon" href="./icons/favicon.ico?v=chart-icon-20260922">
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=chart-icon-20260922">
     <style>
       :root {
         --background: #f5f0e8;
@@ -150,6 +153,22 @@
         .appearance-grid { grid-template-columns: 1fr; }
       }
     </style>
+    <!-- Repeat the external icon links last so Safari does not retain the older
+         embedded favicon when saving this page to the Home Screen. -->
+    <link rel="icon" type="image/png" sizes="180x180" href="./icons/apple-touch-icon.png?v=chart-icon-20260922">
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=chart-icon-20260922">
+    <link rel="apple-touch-icon-precomposed" sizes="180x180" href="./icons/apple-touch-icon.png?v=chart-icon-20260922">
+    <style>
+      /* The page also has an older inline image; keep it hidden and show the shared chart artwork. */
+      .brand-mark {
+        background-image: url("./icons/apple-touch-icon.png?v=chart-icon-20260922");
+        background-size: cover;
+        background-position: center;
+      }
+      .brand-mark img { visibility: hidden !important; }
+    </style>
+    <!-- Keep a stable file-backed icon for browsers that persist bookmark icons. -->
+    <link rel="bookmark icon" type="image/png" sizes="32x32" href="./icons/favicon.png?v=bookmark-icon-20260922">
   </head>
   <body>
     <div class="shell">
