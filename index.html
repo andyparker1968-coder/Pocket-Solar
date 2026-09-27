@@ -499,7 +499,7 @@
           </div>
           <div class="schedule-row">
             <div class="schedule-row-label">
-              <strong><i class="schedule-key schedule-key--offpeak" id="scheduleOffPeakKey" aria-hidden="true"></i>Off-peak grid window</strong>
+              <strong><i class="schedule-key schedule-key--offpeak" id="scheduleOffPeakKey" aria-hidden="true"></i>Off-peak grid hours</strong>
               <small id="scheduleOffPeakTime">—</small>
             </div>
             <div class="schedule-track" id="scheduleOffPeakTrack" aria-hidden="true"></div>
@@ -693,14 +693,13 @@
           if (duration == null) return 'Enter both times to show this window.';
           return start + '–' + end + ' · ' + number(duration, 2) + (duration === 1 ? ' hour' : ' hours');
         };
-        var drawScheduleBar = function (trackId, startId, endId, kind, inactive) {
+        var drawScheduleBar = function (trackId, startId, endId, kind, inactive, fullDayWhenZero) {
           var track = document.getElementById(trackId);
           while (track.firstChild) track.removeChild(track.firstChild);
           var start = clockMinutes(document.getElementById(startId).value);
           var duration = rangeHours(startId, endId);
-          if (start == null || duration == null || duration <= 0) return;
+          if (start == null || duration == null) return;
           var remaining = duration * 60;
-          var firstSegment = Math.min(remaining, 1440 - start);
           var addSegment = function (segmentStart, segmentDuration) {
             if (segmentDuration <= 0) return;
             var bar = document.createElement('span');
@@ -709,6 +708,12 @@
             bar.style.width = (segmentDuration / 1440 * 100) + '%';
             track.appendChild(bar);
           };
+          if (duration === 0 && fullDayWhenZero) {
+            addSegment(0, 1440);
+            return;
+          }
+          if (duration <= 0) return;
+          var firstSegment = Math.min(remaining, 1440 - start);
           addSegment(start, firstSegment);
           addSegment(0, remaining - firstSegment);
         };
@@ -717,9 +722,14 @@
           var solarCharging = document.getElementById('batterySolar').value === 'yes';
           var chargeStartId = solarCharging ? 'solarStart' : 'batteryChargeStart';
           var chargeEndId = solarCharging ? 'solarEnd' : 'batteryChargeEnd';
-          var gridWindowActive = batteryEnabled && !solarCharging;
+          var peakHours = rangeHours('batteryPeakStart', 'batteryPeakEnd');
+          var offPeakText = peakHours == null
+            ? 'Set Peak times to calculate off-peak hours.'
+            : peakHours === 0
+              ? '00:00–24:00 · 24 hours · no Peak window'
+              : scheduleWindowText('batteryPeakEnd', 'batteryPeakStart') + ' · outside Peak times';
           set('scheduleSolarTime', scheduleWindowText('solarStart', 'solarEnd') + ' · average home use applies in this window');
-          set('scheduleOffPeakTime', scheduleWindowText('batteryChargeStart', 'batteryChargeEnd') + (gridWindowActive ? ' · selected for grid charging' : ' · grid charging not selected'));
+          set('scheduleOffPeakTime', offPeakText + (solarCharging ? ' · solar source selected' : batteryEnabled ? ' · available for grid charging' : ' · battery estimate off'));
           set('scheduleChargeTitle', solarCharging ? 'Battery charging · surplus solar' : 'Battery charging · off-peak grid');
           set('scheduleChargeTime', scheduleWindowText(chargeStartId, chargeEndId) + (batteryEnabled ? '' : ' · battery estimate off'));
           set('schedulePeakTime', scheduleWindowText('batteryPeakStart', 'batteryPeakEnd'));
@@ -736,10 +746,9 @@
             dischargeText += ' · no discharge estimated';
           }
           set('scheduleDischargeTime', dischargeText);
-          document.getElementById('scheduleOffPeakKey').classList.toggle('is-inactive', !gridWindowActive);
           document.getElementById('scheduleDischargeKey').classList.toggle('is-inactive', !batteryEnabled || !battery || !battery.valid || battery.shifted <= 0);
           drawScheduleBar('scheduleSolarTrack', 'solarStart', 'solarEnd', 'solar', false);
-          drawScheduleBar('scheduleOffPeakTrack', 'batteryChargeStart', 'batteryChargeEnd', 'offpeak', !gridWindowActive);
+          drawScheduleBar('scheduleOffPeakTrack', 'batteryPeakEnd', 'batteryPeakStart', 'offpeak', false, peakHours === 0);
           drawScheduleBar('scheduleChargeTrack', chargeStartId, chargeEndId, 'charge', !batteryEnabled);
           drawScheduleBar('schedulePeakTrack', 'batteryPeakStart', 'batteryPeakEnd', 'peak', false);
           drawScheduleBar('scheduleDischargeTrack', 'batteryPeakStart', 'batteryPeakEnd', 'discharge', !batteryEnabled || !battery || !battery.valid || battery.shifted <= 0);
