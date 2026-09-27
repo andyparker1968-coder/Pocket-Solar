@@ -72,6 +72,10 @@
       input:focus { outline: 2px solid rgba(46, 127, 115, .24); border-color: var(--primary); }
       .input-wrap { position: relative; display: flex; align-items: center; }
       .input-wrap input { padding-right: 62px; }
+       .time-range { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px; }
+       .time-range input { min-width: 0; padding: 0 12px; text-align: center; }
+       .time-range-separator { color: var(--muted-foreground); font: 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+       input.calculated-input { background: var(--muted); cursor: default; }
       .prefix input { padding-left: 34px; }
       .prefix::before { content: "£"; position: absolute; left: 16px; color: var(--muted-foreground); font: 15px var(--mono); z-index: 1; }
       .suffix { position: absolute; right: 16px; color: var(--muted-foreground); font: 11px var(--mono); }
@@ -256,9 +260,18 @@
                   <p class="hint">Real-world average</p>
                 </div>
                 <div class="field full">
-                  <label for="outputHours">Solar output hours <span>Useful daylight</span></label>
-                  <div class="input-wrap"><input id="outputHours" type="number" min="0" step="any" value="6"><span class="suffix">hours</span></div>
-                  <p class="hint">Hours of useful daylight</p>
+                  <label>Solar times <span>Daily solar window</span></label>
+                  <div class="time-range">
+                    <input id="solarStart" type="time" step="60" value="10:00" aria-label="Solar start time">
+                    <span class="time-range-separator" aria-hidden="true">to</span>
+                    <input id="solarEnd" type="time" step="60" value="15:00" aria-label="Solar end time">
+                  </div>
+                  <p class="hint">24-hour time; for example 10:00–15:00. An earlier end time means the range crosses midnight.</p>
+                </div>
+                <div class="field full">
+                  <label for="outputHours">Solar output hours <span>Calculated</span></label>
+                  <div class="input-wrap"><input class="calculated-input" id="outputHours" type="number" min="0" step="any" value="5" readonly><span class="suffix">hours</span></div>
+                  <p class="hint">Calculated from Solar times.</p>
                 </div>
                 <div class="field">
                   <label for="homeUsage">Average home usage per hour during solar hours <span>What home draws each hour</span></label>
@@ -338,9 +351,19 @@
                 <div class="input-wrap"><input id="batteryTarget" type="number" min="0" max="100" step="1" value="100"><span class="suffix">%</span></div>
                 <p class="hint">Must be at least the starting charge.</p>
               </div>
+              <div class="field full">
+                <label>Charge times <span>Charging window</span></label>
+                <div class="time-range">
+                  <input id="batteryChargeStart" type="time" step="60" value="23:00" aria-label="Charge start time">
+                  <span class="time-range-separator" aria-hidden="true">to</span>
+                  <input id="batteryChargeEnd" type="time" step="60" value="02:00" aria-label="Charge end time">
+                </div>
+                <p class="hint">24-hour time; for example 23:00–02:00 crosses midnight.</p>
+              </div>
               <div class="field">
-                <label for="batteryChargeHours">Hours of charging <span>Available window</span></label>
-                <div class="input-wrap"><input id="batteryChargeHours" type="number" min="0" max="24" step="any" value="4"><span class="suffix">hours</span></div>
+                <label for="batteryChargeHours">Hours of charging <span>Calculated</span></label>
+                <div class="input-wrap"><input class="calculated-input" id="batteryChargeHours" type="number" min="0" max="24" step="any" value="3" readonly><span class="suffix">hours</span></div>
+                <p class="hint">Calculated from Charge times.</p>
               </div>
               <div class="field">
                 <label for="batteryGridRate">Grid charging tariff <span>Off-peak rate</span></label>
@@ -365,9 +388,19 @@
                 <label for="batteryPeakUsage">Home peak usage <span>Per hour</span></label>
                 <div class="input-wrap"><input id="batteryPeakUsage" type="number" min="0" step="any" value="1"><span class="suffix">kWh/h</span></div>
               </div>
+              <div class="field full">
+                <label>Peak times <span>Peak-use window</span></label>
+                <div class="time-range">
+                  <input id="batteryPeakStart" type="time" step="60" value="15:00" aria-label="Peak start time">
+                  <span class="time-range-separator" aria-hidden="true">to</span>
+                  <input id="batteryPeakEnd" type="time" step="60" value="18:00" aria-label="Peak end time">
+                </div>
+                <p class="hint">24-hour time; for example 15:00–18:00. An earlier end time means the range crosses midnight.</p>
+              </div>
               <div class="field">
-                <label for="batteryPeakHours">Number of peak hours <span>Usage window</span></label>
-                <div class="input-wrap"><input id="batteryPeakHours" type="number" min="0" max="24" step="any" value="4"><span class="suffix">hours</span></div>
+                <label for="batteryPeakHours">Number of peak hours <span>Calculated</span></label>
+                <div class="input-wrap"><input class="calculated-input" id="batteryPeakHours" type="number" min="0" max="24" step="any" value="3" readonly><span class="suffix">hours</span></div>
+                <p class="hint">Calculated from Peak times.</p>
               </div>
             </div>
             <div class="battery-output" aria-live="polite">
@@ -432,12 +465,14 @@
     <script>
       (function () {
         var ids = ['totalSolar', 'effectiveOutput', 'outputHours', 'homeUsage', 'costPerKwh', 'feedInTariff'];
+        var solarTimeIds = ['solarStart', 'solarEnd'];
+        var batteryTimeIds = ['batteryChargeStart', 'batteryChargeEnd', 'batteryPeakStart', 'batteryPeakEnd'];
         var batteryIds = ['batteryCapacity', 'batteryStart', 'batteryTarget', 'batteryChargeHours', 'batteryGridRate', 'batteryPeakRate', 'batteryPower', 'batterySolar', 'batteryPeakUsage', 'batteryPeakHours'];
-        var allIds = ids.concat(batteryIds);
+        var allIds = ids.concat(solarTimeIds, batteryIds, batteryTimeIds);
         var defaults = {
-          totalSolar: '4000', effectiveOutput: '3200', outputHours: '6', homeUsage: '1000', costPerKwh: '0.00', feedInTariff: '0.12',
-          batteryCapacity: '10', batteryStart: '20', batteryTarget: '100', batteryChargeHours: '4', batteryGridRate: '', batteryPeakRate: '', batteryPower: '3.5',
-          batterySolar: 'yes', batteryPeakUsage: '1', batteryPeakHours: '4'
+          totalSolar: '4000', effectiveOutput: '3200', solarStart: '10:00', solarEnd: '15:00', outputHours: '5', homeUsage: '1000', costPerKwh: '0.00', feedInTariff: '0.12',
+          batteryCapacity: '10', batteryStart: '20', batteryTarget: '100', batteryChargeStart: '23:00', batteryChargeEnd: '02:00', batteryChargeHours: '3', batteryGridRate: '', batteryPeakRate: '', batteryPower: '3.5',
+          batterySolar: 'yes', batteryPeakUsage: '1', batteryPeakStart: '15:00', batteryPeakEnd: '18:00', batteryPeakHours: '3'
         };
         var money = function (value) {
           return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value));
@@ -447,13 +482,32 @@
           return new Intl.NumberFormat('en-GB', { maximumFractionDigits: digits == null ? 2 : digits }).format(value);
         };
         var tariffStorageFormat = 'gbp-per-kwh-v1';
+        var timeRangeStorageFormat = 'clock-ranges-v1';
         var read = function (id) { return Number(document.getElementById(id).value); };
         var set = function (id, value) { document.getElementById(id).textContent = value; };
+        var clockMinutes = function (value) {
+          var match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(value || ''));
+          return match ? Number(match[1]) * 60 + Number(match[2]) : null;
+        };
+        var rangeHours = function (startId, endId) {
+          var start = clockMinutes(document.getElementById(startId).value);
+          var end = clockMinutes(document.getElementById(endId).value);
+          if (start == null || end == null) return null;
+          return ((end - start + 1440) % 1440) / 60;
+        };
+        var timeAfterHours = function (startTime, hours, fallback) {
+          var start = clockMinutes(startTime);
+          var duration = Number(hours);
+          if (start == null || !Number.isFinite(duration) || duration < 0 || duration > 24) return fallback;
+          var end = (start + Math.round(duration * 60)) % 1440;
+          return String(Math.floor(end / 60)).padStart(2, '0') + ':' + String(end % 60).padStart(2, '0');
+        };
         var saveValues = function () {
           try {
             var values = allIds.reduce(function (all, id) { all[id] = document.getElementById(id).value; return all; }, {});
             values.batteryEnabled = document.getElementById('batteryEnabled').checked;
             values.batteryTariffFormat = tariffStorageFormat;
+            values.timeRangeFormat = timeRangeStorageFormat;
             localStorage.setItem('pocket-solar-standalone', JSON.stringify(values));
           } catch (_) {}
         };
@@ -545,6 +599,12 @@
           };
         };
         var update = function () {
+          var solarHours = rangeHours('solarStart', 'solarEnd');
+          var chargeHours = rangeHours('batteryChargeStart', 'batteryChargeEnd');
+          var peakHours = rangeHours('batteryPeakStart', 'batteryPeakEnd');
+          document.getElementById('outputHours').value = solarHours == null ? '' : String(solarHours);
+          document.getElementById('batteryChargeHours').value = chargeHours == null ? '' : String(chargeHours);
+          document.getElementById('batteryPeakHours').value = peakHours == null ? '' : String(peakHours);
           var solarCharging = document.getElementById('batterySolar').value === 'yes';
           document.getElementById('batteryGridRate').disabled = solarCharging;
           document.getElementById('batteryGridRateHint').textContent = solarCharging
@@ -637,6 +697,14 @@
         try {
           var saved = JSON.parse(localStorage.getItem('pocket-solar-standalone') || 'null');
           if (saved) {
+            if (saved.timeRangeFormat !== timeRangeStorageFormat) {
+              saved.solarStart = saved.solarStart || defaults.solarStart;
+              saved.solarEnd = saved.solarEnd || timeAfterHours(saved.solarStart, saved.outputHours, defaults.solarEnd);
+              saved.batteryChargeStart = saved.batteryChargeStart || defaults.batteryChargeStart;
+              saved.batteryChargeEnd = saved.batteryChargeEnd || timeAfterHours(saved.batteryChargeStart, saved.batteryChargeHours, defaults.batteryChargeEnd);
+              saved.batteryPeakStart = saved.batteryPeakStart || defaults.batteryPeakStart;
+              saved.batteryPeakEnd = saved.batteryPeakEnd || timeAfterHours(saved.batteryPeakStart, saved.batteryPeakHours, defaults.batteryPeakEnd);
+            }
             if (saved.batteryTariffFormat !== tariffStorageFormat) {
               ['batteryGridRate', 'batteryPeakRate'].forEach(function (id) {
                 if (saved[id] != null && saved[id] !== '' && Number.isFinite(Number(saved[id]))) saved[id] = String(Number(saved[id]) / 100);
