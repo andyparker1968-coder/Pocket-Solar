@@ -104,6 +104,7 @@
        .battery-intro { max-width: 680px; margin: 14px 0 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.55; }
        .battery-fields { margin-top: 24px; }
        .battery-card select { width: 100%; min-height: 53px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); color: var(--foreground); padding: 0 16px; font: 500 14px var(--sans); }
+       .battery-card #batterySolar { background: var(--background); }
        .battery-card select:focus { outline: 2px solid rgba(46, 127, 115, .24); border-color: var(--primary); }
        .battery-output { margin-top: 24px; padding: 20px; border-radius: 18px; background: var(--background); }
        .battery-status { margin: 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.55; }
@@ -165,7 +166,8 @@
        .schedule-key--solar, .schedule-bar--solar { background: var(--accent); }
        .schedule-key--offpeak, .schedule-bar--offpeak { background: #879695; }
        .schedule-key--charge, .schedule-bar--charge { background: var(--primary); }
-       .schedule-key--peak, .schedule-bar--peak { background: var(--muted-foreground); }
+        .schedule-key--peak, .schedule-bar--peak { background: #d94b4b; }
+        .schedule-bar--grid-charge { z-index: 1; border: 1px solid var(--foreground); background-color: var(--primary); background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, .82) 0 1px, transparent 1px 5px), repeating-linear-gradient(-45deg, rgba(0, 0, 0, .48) 0 1px, transparent 1px 5px); }
        .schedule-key--discharge, .schedule-bar--discharge { background: var(--primary-dark); }
        .schedule-key.is-inactive { border: 1px dashed var(--muted-foreground); background: transparent; }
        .schedule-track { position: relative; min-width: 0; height: 34px; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background-color: var(--background); background-image: repeating-linear-gradient(to right, transparent 0, transparent calc(25% - 1px), rgba(109, 124, 125, .22) calc(25% - 1px), rgba(109, 124, 125, .22) 25%); }
@@ -424,6 +426,11 @@
                 <div class="input-wrap"><input id="batteryPeakUsage" type="number" min="0" step="any" value="1"><span class="suffix">kWh/h</span></div>
                 <p class="hint">Average demand used for both Morning and Evening peak times.</p>
               </div>
+              <div class="field">
+                <label for="batteryOffPeakUsage">Off-peak home use <span>Per hour</span></label>
+                <div class="input-wrap"><input id="batteryOffPeakUsage" type="number" min="0" step="any" value="1"><span class="suffix">kWh/h</span></div>
+                <p class="hint">Average demand used to estimate total energy outside both peak windows.</p>
+              </div>
               <div class="field full">
                 <label>Morning peak times <span>Peak-use window</span></label>
                 <div class="time-range">
@@ -554,7 +561,7 @@
             </div>
             <div class="schedule-track" id="scheduleEveningDischargeTrack" aria-hidden="true"></div>
           </div>
-          <p class="schedule-footnote">Bars show scheduled time windows rather than energy volume. Surplus solar is applied first during Solar times; the Charge times bar marks when grid charging or a grid top-up can occur. Morning discharge uses battery energy first, with only the remaining surplus available for the Evening peak.</p>
+          <p class="schedule-footnote">Bars show scheduled time windows rather than energy volume. Peak periods are red; crosshatching marks estimated hours actually used for grid charging, starting at the beginning of Charge times. Surplus solar is applied first during Solar times; Morning discharge uses battery energy first, with only the remaining surplus available for the Evening peak.</p>
         </section>
 
         <div class="appearance-tools">
@@ -585,11 +592,11 @@
         var solarTimeIds = ['solarStart', 'solarEnd'];
         var batteryTimeIds = ['batteryChargeStart', 'batteryChargeEnd', 'batteryMorningStart', 'batteryMorningEnd', 'batteryPeakStart', 'batteryPeakEnd'];
         var batteryIds = ['batteryCapacity', 'batteryStart', 'batteryTarget', 'batteryChargeHours', 'batteryGridRate', 'batteryPeakRate', 'batteryPower', 'batterySolar', 'batteryPeakUsage', 'batteryMorningHours', 'batteryPeakHours'];
-        var allIds = ids.concat(solarTimeIds, batteryIds, batteryTimeIds);
+        var allIds = ids.concat(solarTimeIds, batteryIds, batteryTimeIds, ['batteryOffPeakUsage']);
         var defaults = {
           totalSolar: '4000', effectiveOutput: '3200', solarStart: '10:00', solarEnd: '15:00', outputHours: '5', homeUsage: '1000', costPerKwh: '0.00', feedInTariff: '0.12',
           batteryCapacity: '10', batteryStart: '20', batteryTarget: '100', batteryChargeStart: '23:00', batteryChargeEnd: '02:00', batteryChargeHours: '3', batteryGridRate: '', batteryPeakRate: '', batteryPower: '3.5',
-          batterySolar: 'yes', batteryPeakUsage: '1', batteryMorningStart: '07:00', batteryMorningEnd: '09:00', batteryMorningHours: '2',
+          batterySolar: 'yes', batteryPeakUsage: '1', batteryOffPeakUsage: '1', batteryMorningStart: '07:00', batteryMorningEnd: '09:00', batteryMorningHours: '2',
           batteryPeakStart: '15:00', batteryPeakEnd: '18:00', batteryPeakHours: '3'
         };
         var money = function (value) {
@@ -808,9 +815,9 @@
           if (duration == null) return 'Enter both times to show this window.';
           return start + '–' + end + ' · ' + number(duration, 2) + (duration === 1 ? ' hour' : ' hours');
         };
-        var drawScheduleSegments = function (trackId, segments, kind, inactive) {
+        var drawScheduleSegments = function (trackId, segments, kind, inactive, append) {
           var track = document.getElementById(trackId);
-          while (track.firstChild) track.removeChild(track.firstChild);
+          if (!append) while (track.firstChild) track.removeChild(track.firstChild);
           if (segments == null) return;
           segments.forEach(function (segment) {
             var duration = segment.end - segment.start;
@@ -829,16 +836,35 @@
           if (duration === 0 && fullDayWhenZero) segments = [{ start: 0, end: 1440 }];
           drawScheduleSegments(trackId, segments, kind, inactive);
         };
+        var drawGridChargeOverlay = function (trackId, startId, hours) {
+          var start = clockMinutes(document.getElementById(startId).value);
+          var duration = Math.min(Number(hours) || 0, 24) * 60;
+          if (start == null || duration <= 0) return;
+          var end = start + duration;
+          var segments = end <= 1440
+            ? [{ start: start, end: end }]
+            : [{ start: start, end: 1440 }, { start: 0, end: end - 1440 }];
+          drawScheduleSegments(trackId, segments, 'grid-charge', false, true);
+        };
         var updateScheduleChart = function (battery) {
           var batteryEnabled = document.getElementById('batteryEnabled').checked;
           var solarCharging = document.getElementById('batterySolar').value === 'yes';
           var offPeak = offPeakSegments();
           var offPeakMinutes = offPeak == null ? 0 : offPeak.reduce(function (total, segment) { return total + segment.end - segment.start; }, 0);
+          var offPeakUseRaw = document.getElementById('batteryOffPeakUsage').value.trim();
+          var offPeakUsePerHour = Number(offPeakUseRaw);
+          var peakUseRaw = document.getElementById('batteryPeakUsage').value.trim();
+          var peakUsePerHour = Number(peakUseRaw);
+          var useNote = function (raw, rate, hours, description) {
+            if (hours == null) return '';
+            if (raw === '' || !Number.isFinite(rate) || rate < 0) return ' · enter ' + description + ' to calculate kWh';
+            return ' · ' + number(rate * hours, 2) + ' kWh used';
+          };
           var offPeakText = offPeak == null
             ? 'Set both peak windows to calculate off-peak home use.'
             : offPeakMinutes === 0
-              ? 'No off-peak hours · 0 hours outside both peaks'
-              : offPeak.map(function (segment) { return scheduleClock(segment.start) + '–' + scheduleClock(segment.end); }).join(', ') + ' · ' + number(offPeakMinutes / 60, 2) + ' hours outside both peaks';
+              ? 'No off-peak hours · 0 hours outside both peaks' + useNote(offPeakUseRaw, offPeakUsePerHour, 0, 'off-peak home use')
+              : offPeak.map(function (segment) { return scheduleClock(segment.start) + '–' + scheduleClock(segment.end); }).join(', ') + ' · ' + number(offPeakMinutes / 60, 2) + ' hours outside both peaks' + useNote(offPeakUseRaw, offPeakUsePerHour, offPeakMinutes / 60, 'off-peak home use');
           set('scheduleSolarTime', scheduleWindowText('solarStart', 'solarEnd') + ' · average home use applies in this window');
           set('scheduleOffPeakTime', offPeakText);
           set('scheduleChargeTitle', solarCharging ? 'Grid top-up window' : 'Grid charging window');
@@ -847,11 +873,13 @@
             : !battery || !battery.valid
               ? ''
               : battery.gridSourceEnergy > 1e-8
-                ? ' · estimated ' + number(battery.gridSourceEnergy, 2) + ' kWh ' + (solarCharging ? 'grid top-up' : 'grid charge')
+                ? ' · estimated ' + number(battery.gridSourceEnergy, 2) + ' kWh ' + (solarCharging ? 'grid top-up' : 'grid charge') + ' over ' + number(battery.gridSourceEnergy / read('batteryPower'), 2) + ' hours (crosshatched)'
                 : solarCharging ? ' · no grid top-up needed' : ' · no grid charge estimated';
           set('scheduleChargeTime', scheduleWindowText('batteryChargeStart', 'batteryChargeEnd') + chargeWindowNote);
-          set('scheduleMorningPeakTime', scheduleWindowText('batteryMorningStart', 'batteryMorningEnd'));
-          set('scheduleEveningPeakTime', scheduleWindowText('batteryPeakStart', 'batteryPeakEnd'));
+          var morningHours = rangeHours('batteryMorningStart', 'batteryMorningEnd');
+          var eveningHours = rangeHours('batteryPeakStart', 'batteryPeakEnd');
+          set('scheduleMorningPeakTime', scheduleWindowText('batteryMorningStart', 'batteryMorningEnd') + useNote(peakUseRaw, peakUsePerHour, morningHours, 'peak home use'));
+          set('scheduleEveningPeakTime', scheduleWindowText('batteryPeakStart', 'batteryPeakEnd') + useNote(peakUseRaw, peakUsePerHour, eveningHours, 'peak home use'));
           var dischargeText = function (windowText, shifted, remaining, finalWindow) {
             if (!batteryEnabled) return windowText + ' · potential window; battery estimate off';
             if (!battery) return windowText + ' · complete solar setup to estimate discharge';
@@ -880,6 +908,9 @@
           drawScheduleBar('scheduleSolarTrack', 'solarStart', 'solarEnd', 'solar', false);
           drawScheduleSegments('scheduleOffPeakTrack', offPeak, 'offpeak', false);
           drawScheduleBar('scheduleChargeTrack', 'batteryChargeStart', 'batteryChargeEnd', 'charge', !batteryEnabled);
+          if (batteryEnabled && battery && battery.valid && battery.gridSourceEnergy > 1e-8 && read('batteryPower') > 0) {
+            drawGridChargeOverlay('scheduleChargeTrack', 'batteryChargeStart', battery.gridSourceEnergy / read('batteryPower'));
+          }
           drawScheduleBar('scheduleMorningPeakTrack', 'batteryMorningStart', 'batteryMorningEnd', 'peak', false);
           drawScheduleBar('scheduleMorningDischargeTrack', 'batteryMorningStart', 'batteryMorningEnd', 'discharge', inactiveMorning);
           drawScheduleBar('scheduleEveningPeakTrack', 'batteryPeakStart', 'batteryPeakEnd', 'peak', false);
