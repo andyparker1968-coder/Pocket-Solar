@@ -99,7 +99,12 @@
        .battery-card select:focus { outline: 2px solid rgba(46, 127, 115, .24); border-color: var(--primary); }
        .battery-output { margin-top: 24px; padding: 20px; border-radius: 18px; background: var(--background); }
        .battery-status { margin: 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.55; }
-       .battery-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+        .battery-charge-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+        .battery-charge-detail { min-width: 0; padding: 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); }
+        .battery-charge-detail span { display: block; color: var(--muted-foreground); font: 9px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+        .battery-charge-detail strong { display: block; margin-top: 8px; font: 600 22px var(--mono); overflow-wrap: anywhere; }
+        .battery-charge-detail small { display: block; margin-top: 7px; color: var(--muted-foreground); font-size: 11px; line-height: 1.45; }
+        .battery-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
        .battery-metric { min-width: 0; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); }
        .battery-metric span { display: block; color: var(--muted-foreground); font: 9px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
        .battery-metric strong { display: block; margin-top: 8px; font: 600 18px var(--mono); overflow-wrap: anywhere; }
@@ -167,6 +172,7 @@
           .battery-actions { width: 100%; align-items: stretch; flex-direction: column; }
           .battery-toggle { align-self: stretch; justify-content: space-between; }
           .battery-collapse { width: 100%; text-align: left; }
+          .battery-charge-details { grid-template-columns: 1fr; }
          .battery-metrics { grid-template-columns: 1fr 1fr; }
         .benefit { padding: 24px; }
         .breakdown { padding: 20px; }
@@ -361,10 +367,21 @@
             </div>
             <div class="battery-output" aria-live="polite">
               <p class="battery-status" id="batteryStatus">Battery calculations are off; the solar-only estimate is unchanged.</p>
+              <div class="battery-charge-details">
+                <div class="battery-charge-detail">
+                  <span id="batteryChargeSource">Charge supplied by selected source</span>
+                  <strong id="batteryChargeShare">—</strong>
+                  <small id="batteryChargeState">Enable the battery estimate to calculate the charge percentage.</small>
+                </div>
+                <div class="battery-charge-detail">
+                  <span>Cost to charge</span>
+                  <strong id="batteryChargeCost">—</strong>
+                  <small id="batteryChargeCostNote">Enable the battery estimate to calculate charging cost.</small>
+                </div>
+              </div>
               <div class="battery-metrics">
                 <div class="battery-metric"><span>Energy shifted to peak</span><strong id="batteryEnergyShifted">—</strong></div>
                 <div class="battery-metric"><span>Peak grid cost avoided</span><strong id="batteryAvoidedCost">—</strong></div>
-                <div class="battery-metric"><span id="batteryCostLabel">Charge cost / export value</span><strong id="batteryChargeCost">—</strong></div>
                 <div class="battery-metric"><span>Net battery saving / cost</span><strong id="batteryNetSaving">—</strong></div>
               </div>
             </div>
@@ -477,12 +494,18 @@
           var chargeUnitCost = source === 'yes' ? feedInTariff : gridRate / 100;
           var avoidedCost = shifted * peakRate / 100;
           var chargeCost = sourceEnergy * chargeUnitCost;
+          var chargePercent = Math.min(100, Math.max(0, energyAddedToBattery / capacity * 100));
+          var endingCharge = Math.min(target, starting + chargePercent);
+          var chargeCostNote = source === 'yes'
+            ? 'Surplus solar · export value forgone at ' + money(feedInTariff) + '/kWh'
+            : 'Off-peak grid tariff · ' + number(gridRate, 2) + 'p/kWh';
           var net = avoidedCost - chargeCost;
           var remainingInBattery = Math.max(0, energyAddedToBattery - shifted / dischargeEfficiency);
           return {
             enabled: true, valid: true, source: source, net: net, shifted: shifted,
             avoidedCost: avoidedCost, chargeCost: chargeCost, sourceEnergy: sourceEnergy,
-            remainingInBattery: remainingInBattery, peakDemand: peakDemand,
+            chargePercent: chargePercent, startingCharge: starting, endingCharge: endingCharge,
+            chargeCostNote: chargeCostNote, remainingInBattery: remainingInBattery, peakDemand: peakDemand,
             message: shifted > 0
               ? 'Battery is included. It can take in up to ' + number(sourceEnergy, 2) + ' kWh for this charge window; ' + number(shifted, 2) + ' kWh is counted against peak use. Uses ' + number(peakRate, 2) + 'p/kWh for peak imports' + (source === 'no' ? ' and ' + number(gridRate, 2) + 'p/kWh off-peak' : '') + '. Assumes 95% charge and 95% discharge efficiency (about 90% round trip). About ' + number(remainingInBattery, 2) + ' kWh remains after peak; its later use is not credited in this one-day estimate.'
               : 'Battery is enabled, but this setup has no energy available to shift into the selected peak window.'
@@ -497,7 +520,10 @@
              ['totalBenefit', 'dailyBenefit', 'monthlyBenefit', 'annualBenefit', 'homeCovered', 'rateHours', 'feedInKw', 'feedInBreakdown', 'feedInEarnings', 'solarOnlyBreakdown', 'totalBreakdown', 'homeFormula', 'feedFormula'].forEach(function (id) { set(id, '—'); });
             set('benefitCopy', 'Complete the figures to see your estimate.');
             set('batteryStatus', 'Complete the solar setup figures before calculating battery savings.');
-            ['batteryEnergyShifted', 'batteryAvoidedCost', 'batteryChargeCost', 'batteryNetSaving'].forEach(function (id) { set(id, '—'); });
+            ['batteryChargeShare', 'batteryChargeCost', 'batteryEnergyShifted', 'batteryAvoidedCost', 'batteryNetSaving'].forEach(function (id) { set(id, '—'); });
+            set('batteryChargeSource', document.getElementById('batterySolar').value === 'yes' ? 'Battery charge from surplus solar' : 'Battery charge from off-peak grid');
+            set('batteryChargeState', 'Complete the setup figures to estimate the battery charge percentage.');
+            set('batteryChargeCostNote', 'Complete the setup figures to estimate charging cost.');
             set('batteryNetBreakdown', 'Not included');
             saveValues();
             return;
@@ -532,26 +558,33 @@
           set('feedFormula', '(' + number(surplusKw, 3) + ' × £' + number(tariff, 2) + ' × ' + number(outputHours, 2) + ')' + (battery.enabled && battery.valid && battery.source === 'yes' ? ' before battery diversion' : ''));
           if (battery.enabled && !battery.valid) {
             set('batteryStatus', battery.message);
-            ['batteryEnergyShifted', 'batteryAvoidedCost', 'batteryChargeCost', 'batteryNetSaving'].forEach(function (id) { set(id, '—'); });
+            ['batteryChargeShare', 'batteryChargeCost', 'batteryEnergyShifted', 'batteryAvoidedCost', 'batteryNetSaving'].forEach(function (id) { set(id, '—'); });
+            set('batteryChargeSource', document.getElementById('batterySolar').value === 'yes' ? 'Battery charge from surplus solar' : 'Battery charge from off-peak grid');
+            set('batteryChargeState', 'Complete the battery inputs to estimate the charge percentage.');
+            set('batteryChargeCostNote', battery.message);
             set('batteryNetBreakdown', 'Not included');
-            set('batteryCostLabel', 'Charge cost / export value');
             set('benefitCopy', 'Battery is on but its inputs need attention; the total currently shows the solar-only estimate.');
             set('potentialCopy', 'Battery is on but its inputs need attention; the totals currently show the solar-only estimate.');
           } else if (battery.enabled) {
             set('batteryStatus', battery.message);
+            set('batteryChargeSource', battery.source === 'yes' ? 'Battery charge from surplus solar' : 'Battery charge from off-peak grid');
+            set('batteryChargeShare', number(battery.chargePercent, 1) + '%');
+            set('batteryChargeState', 'Of full capacity · ' + number(battery.startingCharge, 0) + '% → ' + number(battery.endingCharge, 1) + '% state of charge');
+            set('batteryChargeCostNote', battery.chargeCostNote);
             set('batteryEnergyShifted', number(battery.shifted, 2) + ' kWh');
             set('batteryAvoidedCost', money(battery.avoidedCost));
             set('batteryChargeCost', money(battery.chargeCost));
             set('batteryNetSaving', signedMoney(battery.net));
             set('batteryNetBreakdown', signedMoney(battery.net));
-            set('batteryCostLabel', battery.source === 'yes' ? 'Solar export value forgone' : 'Grid charging cost');
             set('benefitCopy', 'Solar savings and export income, adjusted by the battery’s net peak-shifting value, for one day.');
             set('potentialCopy', 'Based on the same daily output repeating; includes solar savings, export income, and the battery net adjustment.');
           } else {
             set('batteryStatus', 'Battery calculations are off; the solar-only estimate is unchanged.');
-            ['batteryEnergyShifted', 'batteryAvoidedCost', 'batteryChargeCost', 'batteryNetSaving'].forEach(function (id) { set(id, '—'); });
+            ['batteryChargeShare', 'batteryChargeCost', 'batteryEnergyShifted', 'batteryAvoidedCost', 'batteryNetSaving'].forEach(function (id) { set(id, '—'); });
+            set('batteryChargeSource', document.getElementById('batterySolar').value === 'yes' ? 'Battery charge from surplus solar' : 'Battery charge from off-peak grid');
+            set('batteryChargeState', 'Turn on battery calculations to estimate the charge percentage.');
+            set('batteryChargeCostNote', 'Turn on battery calculations to estimate charging cost.');
             set('batteryNetBreakdown', 'Off');
-            set('batteryCostLabel', 'Charge cost / export value');
             set('benefitCopy', effective < usage ? 'Home-use savings for one day, based on ' + number(outputHours, 0) + ' useful daylight hours.' : 'Home-use savings plus earnings from surplus energy exported in one day.');
             set('potentialCopy', 'Based on the same daily output repeating. Includes home-use savings and feed-in earnings.');
           }
