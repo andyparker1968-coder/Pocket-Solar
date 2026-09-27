@@ -75,7 +75,9 @@
        .time-range { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px; }
        .time-range input { min-width: 0; padding: 0 12px; text-align: center; }
        .time-range-separator { color: var(--muted-foreground); font: 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
-       input.calculated-input { background: var(--muted); cursor: default; }
+       input.calculated-input { border-color: var(--primary); background: var(--card); color: var(--foreground); cursor: default; }
+       input.calculated-input + .suffix { color: var(--foreground); }
+       input.calculated-input:focus { outline-color: var(--primary); }
       .prefix input { padding-left: 34px; }
       .prefix::before { content: "£"; position: absolute; left: 16px; color: var(--muted-foreground); font: 15px var(--mono); z-index: 1; }
       .suffix { position: absolute; right: 16px; color: var(--muted-foreground); font: 11px var(--mono); }
@@ -144,6 +146,32 @@
       .stat-label { color: rgba(251, 250, 247, .62); }
       .stat strong { display: block; margin-top: 12px; font: 600 32px/1 var(--serif); letter-spacing: -.05em; }
       .stat p { margin: 5px 0 0; color: rgba(251, 250, 247, .7); font-size: 11px; }
+       .schedule-card { margin-top: 28px; padding: 28px; }
+       .schedule-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; }
+       .schedule-head h2 { margin-top: 8px; }
+       .schedule-copy { max-width: 390px; margin: 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.5; }
+       .schedule-axis, .schedule-row { display: grid; grid-template-columns: minmax(190px, .38fr) minmax(0, 1fr); gap: 18px; align-items: center; }
+       .schedule-axis { margin-top: 24px; }
+       .schedule-axis-caption { color: var(--muted-foreground); font: 9px var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+       .schedule-axis-track { position: relative; height: 20px; color: var(--muted-foreground); font: 10px var(--mono); }
+       .schedule-axis-track span { position: absolute; top: 0; left: 25%; transform: translateX(-50%); }
+       .schedule-axis-track .schedule-tick-start { left: 0; transform: none; }
+       .schedule-axis-track .schedule-tick-end { left: 100%; transform: translateX(-100%); }
+       .schedule-row { padding: 11px 0; border-top: 1px solid rgba(222, 216, 204, .75); }
+       .schedule-row-label { min-width: 0; }
+       .schedule-row-label strong { display: flex; align-items: center; gap: 9px; font-size: 12px; }
+       .schedule-row-label small { display: block; margin: 5px 0 0 17px; color: var(--muted-foreground); font-size: 10px; line-height: 1.4; }
+       .schedule-key { width: 8px; height: 8px; flex: 0 0 8px; border-radius: 50%; background: var(--primary); }
+       .schedule-key--solar, .schedule-bar--solar { background: var(--accent); }
+       .schedule-key--offpeak, .schedule-bar--offpeak { background: #879695; }
+       .schedule-key--charge, .schedule-bar--charge { background: var(--primary); }
+       .schedule-key--peak, .schedule-bar--peak { background: var(--muted-foreground); }
+       .schedule-key--discharge, .schedule-bar--discharge { background: var(--primary-dark); }
+       .schedule-key.is-inactive { border: 1px dashed var(--muted-foreground); background: transparent; }
+       .schedule-track { position: relative; min-width: 0; height: 34px; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background-color: var(--background); background-image: repeating-linear-gradient(to right, transparent 0, transparent calc(25% - 1px), rgba(109, 124, 125, .22) calc(25% - 1px), rgba(109, 124, 125, .22) 25%); }
+       .schedule-bar { position: absolute; top: 5px; bottom: 5px; min-width: 0; border-radius: 6px; }
+       .schedule-bar.is-inactive { border: 1px dashed var(--muted-foreground); background: transparent; }
+       .schedule-footnote { margin: 14px 0 0; color: var(--muted-foreground); font-size: 10px; line-height: 1.5; }
       footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(222, 216, 204, .7); color: var(--muted-foreground); font-size: 11px; line-height: 1.5; }
       footer p { margin: 0; }
       footer .version { color: rgba(109, 124, 125, .72); font: 9px var(--mono); letter-spacing: .13em; text-transform: uppercase; }
@@ -188,6 +216,13 @@
         .stats { display: block; }
         .stat { padding: 24px 20px; }
         .stat + .stat { border-top: 1px solid rgba(251, 250, 247, .18); border-left: 0; }
+         .schedule-card { padding: 20px; }
+         .schedule-head { align-items: flex-start; flex-direction: column; }
+         .schedule-axis, .schedule-row { grid-template-columns: 1fr; gap: 6px; }
+         .schedule-axis { margin-top: 20px; }
+         .schedule-axis-caption { display: none; }
+         .schedule-row { padding: 10px 0; }
+         .schedule-row-label small { margin-left: 17px; }
         .appearance-grid { grid-template-columns: 1fr 1fr; }
       }
       @media (max-width: 450px) {
@@ -440,6 +475,59 @@
           </div>
         </section>
 
+        <section class="card schedule-card" aria-labelledby="schedule-title">
+          <div class="schedule-head">
+            <div><p class="section-label">05 — Energy schedule</p><h2 id="schedule-title">A day at a glance.</h2></div>
+            <p class="schedule-copy">A 24-hour timeline of your Solar, Charge, and Peak times. Overnight windows split at midnight; battery discharge follows the Peak times.</p>
+          </div>
+          <div class="schedule-axis" aria-hidden="true">
+            <span class="schedule-axis-caption">Window</span>
+            <div class="schedule-axis-track">
+              <span class="schedule-tick-start">00:00</span>
+              <span style="left:25%">06:00</span>
+              <span style="left:50%">12:00</span>
+              <span style="left:75%">18:00</span>
+              <span class="schedule-tick-end">24:00</span>
+            </div>
+          </div>
+          <div class="schedule-row">
+            <div class="schedule-row-label">
+              <strong><i class="schedule-key schedule-key--solar" aria-hidden="true"></i>Solar generation &amp; home use</strong>
+              <small id="scheduleSolarTime">—</small>
+            </div>
+            <div class="schedule-track" id="scheduleSolarTrack" aria-hidden="true"></div>
+          </div>
+          <div class="schedule-row">
+            <div class="schedule-row-label">
+              <strong><i class="schedule-key schedule-key--offpeak" id="scheduleOffPeakKey" aria-hidden="true"></i>Off-peak grid window</strong>
+              <small id="scheduleOffPeakTime">—</small>
+            </div>
+            <div class="schedule-track" id="scheduleOffPeakTrack" aria-hidden="true"></div>
+          </div>
+          <div class="schedule-row">
+            <div class="schedule-row-label">
+              <strong><i class="schedule-key schedule-key--charge" aria-hidden="true"></i><span id="scheduleChargeTitle">Battery charging</span></strong>
+              <small id="scheduleChargeTime">—</small>
+            </div>
+            <div class="schedule-track" id="scheduleChargeTrack" aria-hidden="true"></div>
+          </div>
+          <div class="schedule-row">
+            <div class="schedule-row-label">
+              <strong><i class="schedule-key schedule-key--peak" aria-hidden="true"></i>Home peak usage</strong>
+              <small id="schedulePeakTime">—</small>
+            </div>
+            <div class="schedule-track" id="schedulePeakTrack" aria-hidden="true"></div>
+          </div>
+          <div class="schedule-row">
+            <div class="schedule-row-label">
+              <strong><i class="schedule-key schedule-key--discharge" id="scheduleDischargeKey" aria-hidden="true"></i>Battery discharge to home</strong>
+              <small id="scheduleDischargeTime">—</small>
+            </div>
+            <div class="schedule-track" id="scheduleDischargeTrack" aria-hidden="true"></div>
+          </div>
+          <p class="schedule-footnote">Bars show scheduled time windows rather than energy volume. Solar charging is plotted during Solar times; grid charging uses Charge times. The selected charging-hours limit still applies to either source.</p>
+        </section>
+
         <div class="appearance-tools">
           <button type="button" class="appearance-link" id="appearance-toggle" aria-expanded="false" aria-controls="appearance-panel">Customise appearance</button>
           <div class="appearance-panel" id="appearance-panel" hidden>
@@ -598,6 +686,64 @@
             message: 'Battery is included. ' + chargeLimitReason + ' ' + dischargeLimitReason + ' It adds ' + number(energyAddedToBattery, 2) + ' kWh to storage and shifts ' + number(shifted, 2) + ' kWh to peak use. About ' + number(remainingInBattery, 2) + ' kWh (' + number(remainingChargePercent, 1) + '%) remains after peak. Assumes 95% charge and 95% discharge efficiency; remaining charge is not credited as additional savings in this one-day estimate.'
           };
         };
+        var scheduleWindowText = function (startId, endId) {
+          var start = document.getElementById(startId).value;
+          var end = document.getElementById(endId).value;
+          var duration = rangeHours(startId, endId);
+          if (duration == null) return 'Enter both times to show this window.';
+          return start + '–' + end + ' · ' + number(duration, 2) + (duration === 1 ? ' hour' : ' hours');
+        };
+        var drawScheduleBar = function (trackId, startId, endId, kind, inactive) {
+          var track = document.getElementById(trackId);
+          while (track.firstChild) track.removeChild(track.firstChild);
+          var start = clockMinutes(document.getElementById(startId).value);
+          var duration = rangeHours(startId, endId);
+          if (start == null || duration == null || duration <= 0) return;
+          var remaining = duration * 60;
+          var firstSegment = Math.min(remaining, 1440 - start);
+          var addSegment = function (segmentStart, segmentDuration) {
+            if (segmentDuration <= 0) return;
+            var bar = document.createElement('span');
+            bar.className = 'schedule-bar schedule-bar--' + kind + (inactive ? ' is-inactive' : '');
+            bar.style.left = (segmentStart / 1440 * 100) + '%';
+            bar.style.width = (segmentDuration / 1440 * 100) + '%';
+            track.appendChild(bar);
+          };
+          addSegment(start, firstSegment);
+          addSegment(0, remaining - firstSegment);
+        };
+        var updateScheduleChart = function (battery) {
+          var batteryEnabled = document.getElementById('batteryEnabled').checked;
+          var solarCharging = document.getElementById('batterySolar').value === 'yes';
+          var chargeStartId = solarCharging ? 'solarStart' : 'batteryChargeStart';
+          var chargeEndId = solarCharging ? 'solarEnd' : 'batteryChargeEnd';
+          var gridWindowActive = batteryEnabled && !solarCharging;
+          set('scheduleSolarTime', scheduleWindowText('solarStart', 'solarEnd') + ' · average home use applies in this window');
+          set('scheduleOffPeakTime', scheduleWindowText('batteryChargeStart', 'batteryChargeEnd') + (gridWindowActive ? ' · selected for grid charging' : ' · grid charging not selected'));
+          set('scheduleChargeTitle', solarCharging ? 'Battery charging · surplus solar' : 'Battery charging · off-peak grid');
+          set('scheduleChargeTime', scheduleWindowText(chargeStartId, chargeEndId) + (batteryEnabled ? '' : ' · battery estimate off'));
+          set('schedulePeakTime', scheduleWindowText('batteryPeakStart', 'batteryPeakEnd'));
+          var dischargeText = scheduleWindowText('batteryPeakStart', 'batteryPeakEnd');
+          if (!batteryEnabled) {
+            dischargeText += ' · potential window; battery estimate off';
+          } else if (!battery) {
+            dischargeText += ' · complete solar setup to estimate discharge';
+          } else if (!battery.valid) {
+            dischargeText += ' · battery inputs need attention';
+          } else if (battery.shifted > 0) {
+            dischargeText += ' · up to ' + number(battery.shifted, 2) + ' kWh to home';
+          } else {
+            dischargeText += ' · no discharge estimated';
+          }
+          set('scheduleDischargeTime', dischargeText);
+          document.getElementById('scheduleOffPeakKey').classList.toggle('is-inactive', !gridWindowActive);
+          document.getElementById('scheduleDischargeKey').classList.toggle('is-inactive', !batteryEnabled || !battery || !battery.valid || battery.shifted <= 0);
+          drawScheduleBar('scheduleSolarTrack', 'solarStart', 'solarEnd', 'solar', false);
+          drawScheduleBar('scheduleOffPeakTrack', 'batteryChargeStart', 'batteryChargeEnd', 'offpeak', !gridWindowActive);
+          drawScheduleBar('scheduleChargeTrack', chargeStartId, chargeEndId, 'charge', !batteryEnabled);
+          drawScheduleBar('schedulePeakTrack', 'batteryPeakStart', 'batteryPeakEnd', 'peak', false);
+          drawScheduleBar('scheduleDischargeTrack', 'batteryPeakStart', 'batteryPeakEnd', 'discharge', !batteryEnabled || !battery || !battery.valid || battery.shifted <= 0);
+        };
         var update = function () {
           var solarHours = rangeHours('solarStart', 'solarEnd');
           var chargeHours = rangeHours('batteryChargeStart', 'batteryChargeEnd');
@@ -605,6 +751,7 @@
           document.getElementById('outputHours').value = solarHours == null ? '' : String(solarHours);
           document.getElementById('batteryChargeHours').value = chargeHours == null ? '' : String(chargeHours);
           document.getElementById('batteryPeakHours').value = peakHours == null ? '' : String(peakHours);
+          updateScheduleChart(null);
           var solarCharging = document.getElementById('batterySolar').value === 'yes';
           document.getElementById('batteryGridRate').disabled = solarCharging;
           document.getElementById('batteryGridRateHint').textContent = solarCharging
@@ -637,6 +784,7 @@
           var surplusKw = Math.max(effective - usage, 0) / 1000;
           var earnings = surplusKw * tariff * outputHours;
           var battery = batteryEstimate(surplusKw, outputHours, tariff);
+          updateScheduleChart(battery);
           var batteryNet = battery.enabled && battery.valid ? battery.net : 0;
           var solarOnlyBenefit = homeSavings + earnings;
           var total = solarOnlyBenefit + batteryNet;
