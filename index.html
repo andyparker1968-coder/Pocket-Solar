@@ -21,8 +21,6 @@
         --primary: #2e7f73;
         --primary-dark: #1a3034;
         --primary-foreground: #fbfaf7;
-        --battery-button: #f5f0e8;
-        --battery-button-foreground: #22383c;
         --secondary: #eee5d7;
         --accent: #ef927e;
         --shadow: 0 16px 35px rgba(25, 50, 53, .1);
@@ -75,16 +73,16 @@
       .input-wrap { position: relative; display: flex; align-items: center; }
       .input-wrap input { padding-right: 62px; }
        .time-range { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px; }
-       .time-range input { min-width: 0; padding: 0 12px; text-align: center; }
+        .time-range input { min-width: 0; padding: 0 12px; text-align: center; background: var(--background); }
        .time-range-separator { color: var(--muted-foreground); font: 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
-       input.calculated-input { border-color: var(--primary); background: var(--card); color: var(--foreground); cursor: default; }
+        input.calculated-input { border-color: var(--primary); background: var(--background); color: var(--foreground); cursor: default; }
        input.calculated-input + .suffix { color: var(--foreground); }
        input.calculated-input:focus { outline-color: var(--primary); }
       .prefix input { padding-left: 34px; }
       .prefix::before { content: "£"; position: absolute; left: 16px; color: var(--muted-foreground); font: 15px var(--mono); z-index: 1; }
       .suffix { position: absolute; right: 16px; color: var(--muted-foreground); font: 11px var(--mono); }
       .hint { margin: 6px 0 0; color: var(--muted-foreground); font-size: 11px; line-height: 1.4; }
-      .fixed-window, .derived { display: flex; align-items: center; justify-content: space-between; background: var(--card); }
+      .fixed-window, .derived { display: flex; align-items: center; justify-content: space-between; background: var(--background); }
       .fixed-window strong { font: 500 15px var(--mono); }
       .fixed-window em { padding: 5px 10px; border-radius: 999px; background: var(--card); color: var(--primary); font: 10px var(--mono); font-style: normal; }
       .setup-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(222, 216, 204, .75); }
@@ -95,10 +93,10 @@
        .battery-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
        .battery-head h2 { margin-top: 8px; }
        .battery-actions { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
-        .battery-toggle { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 14px; border: 1px solid var(--primary); border-radius: 14px; background: var(--battery-button); color: var(--battery-button-foreground); font-size: 12px; }
+         .battery-toggle { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 14px; border: 1px solid var(--primary); border-radius: 14px; background: var(--primary); color: var(--primary-foreground); font-size: 12px; }
        .battery-toggle input { width: 20px; min-height: 20px; margin: 0; padding: 0; accent-color: var(--primary); }
-         .battery-collapse { width: 40px; height: 40px; min-height: 40px; padding: 0; border: 0; background: var(--battery-button); color: var(--battery-button-foreground); }
-        .battery-collapse:hover { background: var(--battery-button); filter: brightness(.95); }
+          .battery-collapse { width: 40px; height: 40px; min-height: 40px; padding: 0; border: 0; background: var(--primary); color: var(--primary-foreground); }
+         .battery-collapse:hover { background: var(--primary); filter: brightness(.95); }
        .battery-collapse:focus-visible { outline: 3px solid rgba(46, 127, 115, .3); outline-offset: 3px; }
         .battery-collapse[aria-expanded="false"] { transform: rotate(-90deg); }
         .battery-collapse span { display: block; line-height: 1; }
@@ -110,12 +108,12 @@
        .battery-output { margin-top: 24px; padding: 20px; border-radius: 18px; background: var(--background); }
        .battery-status { margin: 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.55; }
         .battery-charge-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
-        .battery-charge-detail { min-width: 0; padding: 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); }
+         .battery-charge-detail { min-width: 0; padding: 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--background); }
         .battery-charge-detail span { display: block; color: var(--muted-foreground); font: 9px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
         .battery-charge-detail strong { display: block; margin-top: 8px; font: 600 22px var(--mono); overflow-wrap: anywhere; }
         .battery-charge-detail small { display: block; margin-top: 7px; color: var(--muted-foreground); font-size: 11px; line-height: 1.45; }
         .battery-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
-       .battery-metric { min-width: 0; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); }
+        .battery-metric { min-width: 0; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--background); }
        .battery-metric span { display: block; color: var(--muted-foreground); font: 9px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
        .battery-metric strong { display: block; margin-top: 8px; font: 600 18px var(--mono); overflow-wrap: anywhere; }
         .battery-metric small { display: block; margin-top: 6px; color: var(--muted-foreground); font-size: 10px; line-height: 1.4; }
@@ -371,7 +369,7 @@
             </div>
           </div>
           <div class="battery-body" id="battery-body">
-            <p class="battery-intro">Estimate one charge-and-use cycle across the morning and evening peak windows. Capacity is measured in kWh and power in kW. Peak import rate applies to both peaks. Grid charging uses your Charge-times rate; solar charging is valued at the feed-in tariff. Off-peak home usage is separate from charging.</p>
+            <p class="battery-intro">Estimate one charge-and-use cycle across the morning and evening peak windows. With solar selected, surplus solar charges the battery first; grid power during Charge times tops it up if it is still below target. Solar energy is valued at the feed-in tariff and grid top-up at your Charge-times tariff. Off-peak home usage is separate from charging.</p>
             <div class="fields battery-fields">
               <div class="field">
                 <label for="batteryCapacity">Battery capacity <span>Storage size</span></label>
@@ -389,7 +387,7 @@
                 <p class="hint">Must be at least the starting charge.</p>
               </div>
               <div class="field full">
-                <label>Charge times <span>Charging window</span></label>
+                <label>Charge times <span>Grid charge / top-up window</span></label>
                 <div class="time-range">
                   <input id="batteryChargeStart" type="time" step="60" value="23:00" aria-label="Charge start time">
                   <span class="time-range-separator" aria-hidden="true">to</span>
@@ -398,9 +396,9 @@
                 <p class="hint">24-hour time; for example 23:00–02:00 crosses midnight.</p>
               </div>
               <div class="field">
-                <label for="batteryChargeHours">Hours of charging <span>Calculated</span></label>
+                <label for="batteryChargeHours">Charge-time hours <span>Calculated</span></label>
                 <div class="input-wrap"><input class="calculated-input" id="batteryChargeHours" type="number" min="0" max="24" step="any" value="3" readonly><span class="suffix">hours</span></div>
-                <p class="hint">Calculated from Charge times.</p>
+                <p class="hint">Calculated from Charge times; this window limits grid charging and top-up.</p>
               </div>
               <div class="field">
                 <label for="batteryGridRate">Grid charging tariff <span>Charge-times rate</span></label>
@@ -418,8 +416,8 @@
                 <p class="hint">Enter 0.1–10 kW; the same power limit is assumed for peak discharge.</p>
               </div>
               <div class="field">
-                <label for="batterySolar">Use solar to charge? <span>Charge source</span></label>
-                <select id="batterySolar"><option value="yes">Yes — use surplus solar</option><option value="no">No — use grid tariff</option></select>
+                <label for="batterySolar">Charging strategy <span>Source order</span></label>
+                <select id="batterySolar"><option value="yes">Solar first, then grid top-up</option><option value="no">Grid only</option></select>
               </div>
               <div class="field">
                 <label for="batteryPeakUsage">Home use during peak windows <span>Per hour</span></label>
@@ -459,7 +457,7 @@
               <p class="battery-status" id="batteryStatus">Battery calculations are off; the solar-only estimate is unchanged.</p>
               <div class="battery-charge-details">
                 <div class="battery-charge-detail">
-                  <span id="batteryChargeSource">Charge supplied by selected source</span>
+                  <span id="batteryChargeSource">Selected charging strategy</span>
                   <strong id="batteryChargeShare">—</strong>
                   <small id="batteryChargeState">Enable the battery estimate to calculate the charge percentage.</small>
                 </div>
@@ -556,7 +554,7 @@
             </div>
             <div class="schedule-track" id="scheduleEveningDischargeTrack" aria-hidden="true"></div>
           </div>
-          <p class="schedule-footnote">Bars show scheduled time windows rather than energy volume. Battery charging follows Charge times for either source; the selected tariff values the source energy. Morning discharge uses battery energy first, with only the remaining surplus available for the Evening peak.</p>
+          <p class="schedule-footnote">Bars show scheduled time windows rather than energy volume. Surplus solar is applied first during Solar times; the Charge times bar marks when grid charging or a grid top-up can occur. Morning discharge uses battery energy first, with only the remaining surplus available for the Evening peak.</p>
         </section>
 
         <div class="appearance-tools">
@@ -567,7 +565,6 @@
               <div class="field"><label for="theme-card">Panels</label><input id="theme-card" type="color" aria-describedby="appearance-help"></div>
               <div class="field"><label for="theme-text">Text</label><input id="theme-text" type="color" aria-describedby="appearance-help"></div>
               <div class="field"><label for="theme-accent">Accent color</label><input id="theme-accent" type="color" aria-describedby="appearance-help"></div>
-              <div class="field"><label for="theme-battery-button">Battery button</label><input id="theme-battery-button" type="color" aria-describedby="appearance-help"></div>
               <div class="field"><label for="theme-font">Font style</label><select id="theme-font"><option value="classic">Classic</option><option value="modern">Modern</option><option value="rounded">Rounded</option><option value="mono">Monospace</option></select></div>
               <div class="field check-field">
                 <label for="theme-heading-bold">Bold headings</label>
@@ -708,7 +705,8 @@
           if (minimumCharge < 0 || minimumCharge > 100 || target < 0 || target > 100 || target < minimumCharge) return { enabled: true, valid: false, net: 0, message: 'Use charge percentages from 0–100, with target charge at least as high as the minimum discharge reserve.' };
           if (chargingHours < 0 || chargingHours > 24 || morningHours < 0 || morningHours > 24 || eveningHours < 0 || eveningHours > 24 || peakUsePerHour < 0) return { enabled: true, valid: false, net: 0, message: 'Hours must be from 0–24 and peak usage cannot be negative.' };
           if (chargingPower < 0.1 || chargingPower > 10) return { enabled: true, valid: false, net: 0, message: 'Charging/discharging power must be between 0.1 and 10 kW.' };
-          if (source === 'no' && gridRate < 0) return { enabled: true, valid: false, net: 0, message: 'Grid charging tariff cannot be negative.' };
+          if (gridRateRaw !== '' && !Number.isFinite(gridRate)) return { enabled: true, valid: false, net: 0, message: 'Enter a valid grid charging tariff.' };
+          if (gridRateRaw !== '' && gridRate < 0) return { enabled: true, valid: false, net: 0, message: 'Grid charging tariff cannot be negative.' };
           if (peakRate < 0) return { enabled: true, valid: false, net: 0, message: 'Peak import tariff cannot be negative.' };
           if (source !== 'yes' && source !== 'no') return { enabled: true, valid: false, net: 0, message: 'Choose whether to use solar or grid power to charge.' };
           if (windowsOverlap('batteryMorningStart', 'batteryMorningEnd', 'batteryPeakStart', 'batteryPeakEnd')) return { enabled: true, valid: false, net: 0, message: 'Morning and Evening peak times overlap. Adjust the windows so each hour is counted only once.' };
@@ -716,11 +714,20 @@
           var dischargeEfficiency = 0.95;
           var reserveEnergy = capacity * minimumCharge / 100;
           var storageIncrease = capacity * (target - minimumCharge) / 100;
-          var chargeWindowLimit = chargingPower * chargingHours;
-          var solarEnergyAvailable = Math.max(0, surplusKw) * outputHours;
-          var chargeInputLimit = source === 'yes' ? Math.min(chargeWindowLimit, solarEnergyAvailable) : chargeWindowLimit;
-          var energyAddedToBattery = Math.min(storageIncrease, chargeInputLimit * chargeEfficiency);
-          var sourceEnergy = energyAddedToBattery / chargeEfficiency;
+          var targetInputEnergy = storageIncrease / chargeEfficiency;
+          var solarEnergyAvailable = source === 'yes' ? Math.max(0, surplusKw) * outputHours : 0;
+          var solarChargeRate = source === 'yes' ? Math.min(chargingPower, Math.max(0, surplusKw)) : 0;
+          var solarSourceEnergy = source === 'yes'
+            ? Math.min(targetInputEnergy, solarEnergyAvailable, solarChargeRate * outputHours)
+            : 0;
+          var solarEnergyStored = solarSourceEnergy * chargeEfficiency;
+          var remainingStorageTarget = Math.max(0, storageIncrease - solarEnergyStored);
+          var gridWindowLimit = chargingPower * chargingHours;
+          var gridSourceEnergy = Math.min(gridWindowLimit, remainingStorageTarget / chargeEfficiency);
+          if (source === 'yes' && gridSourceEnergy > 1e-8 && gridRateRaw === '') return { enabled: true, valid: false, net: 0, message: 'Surplus solar will not reach your target. Enter the Charge-times grid tariff to include the grid top-up.' };
+          var gridEnergyStored = gridSourceEnergy * chargeEfficiency;
+          var energyAddedToBattery = solarEnergyStored + gridEnergyStored;
+          var sourceEnergy = solarSourceEnergy + gridSourceEnergy;
           var morningDemand = peakUsePerHour * morningHours;
           var eveningDemand = peakUsePerHour * eveningHours;
           var usableBatteryEnergy = energyAddedToBattery * dischargeEfficiency;
@@ -729,28 +736,42 @@
           var availableForEvening = Math.max(0, afterMorningEnergy - reserveEnergy) * dischargeEfficiency;
           var eveningShifted = Math.min(availableForEvening, eveningDemand, chargingPower * eveningHours);
           var shifted = morningShifted + eveningShifted;
-          var chargeUnitCost = source === 'yes' ? feedInTariff : gridRate;
           var avoidedCost = shifted * peakRate;
-          var chargeCost = sourceEnergy * chargeUnitCost;
+          var solarChargeCost = solarSourceEnergy * feedInTariff;
+          var gridChargeCost = gridSourceEnergy * gridRate;
+          var chargeCost = solarChargeCost + gridChargeCost;
           var chargePercent = Math.min(100, Math.max(0, energyAddedToBattery / capacity * 100));
           var endingCharge = Math.min(target, minimumCharge + chargePercent);
-          var targetInputEnergy = storageIncrease / chargeEfficiency;
-          var sourceChargeRate = source === 'yes' ? Math.min(chargingPower, Math.max(0, surplusKw)) : chargingPower;
-          var chargeHoursToTarget = targetInputEnergy <= 1e-8 ? 0 : sourceChargeRate > 0 ? targetInputEnergy / sourceChargeRate : Infinity;
-          var targetReached = storageIncrease <= chargeInputLimit * chargeEfficiency + 1e-8;
+          var solarHoursUsed = solarChargeRate > 0 ? solarSourceEnergy / solarChargeRate : 0;
+          var gridHoursUsed = chargingPower > 0 ? gridSourceEnergy / chargingPower : 0;
+          var targetReached = storageIncrease <= energyAddedToBattery + 1e-8;
           var chargeTimeNote = storageIncrease <= 1e-8
             ? 'Already at the selected target; no charging time needed.'
-            : targetReached
-              ? 'Target reached in ' + number(chargeHoursToTarget, 2) + ' of ' + number(chargingHours, 2) + ' available hours.'
-              : 'Target not reached within the ' + number(chargingHours, 2) + '-hour charging window.';
+            : source === 'yes'
+              ? (solarSourceEnergy > 1e-8
+                  ? 'Solar uses ' + number(solarHoursUsed, 2) + ' of ' + number(outputHours, 2) + ' Solar hours. '
+                  : 'No usable surplus solar is available. ') +
+                (gridSourceEnergy > 1e-8
+                  ? 'Grid top-up uses ' + number(gridHoursUsed, 2) + ' of ' + number(chargingHours, 2) + ' Charge-time hours. '
+                  : chargingHours <= 0
+                    ? 'No Charge-time hours are available for grid top-up. '
+                    : 'No grid top-up is needed. ') +
+                (targetReached ? 'Target reached.' : 'Target remains short by ' + number(Math.max(0, storageIncrease - energyAddedToBattery), 2) + ' kWh.')
+              : 'Grid charging uses ' + number(gridHoursUsed, 2) + ' of ' + number(chargingHours, 2) + ' Charge-time hours. ' +
+                (targetReached ? 'Target reached.' : 'Target remains short by ' + number(Math.max(0, storageIncrease - energyAddedToBattery), 2) + ' kWh.');
           var chargeCostNote = source === 'yes'
-            ? 'Surplus solar · export value forgone at ' + money(feedInTariff) + '/kWh'
-            : 'Grid tariff during Charge times · ' + money(gridRate) + '/kWh';
-          var chargeLimitReason = storageIncrease <= chargeInputLimit * chargeEfficiency + 1e-8
-            ? 'The target charge is the current limit; extra charging hours or power will not add more charge.'
-            : source === 'yes' && solarEnergyAvailable <= chargeWindowLimit
-              ? 'Available surplus solar is limiting the charge.'
-              : 'The charger power and available hours are limiting the charge.';
+            ? 'Solar export value: ' + number(solarSourceEnergy, 2) + ' kWh × ' + money(feedInTariff) + '/kWh = ' + money(solarChargeCost) + '. ' +
+              (gridSourceEnergy > 1e-8
+                ? 'Grid top-up: ' + number(gridSourceEnergy, 2) + ' kWh × ' + money(gridRate) + '/kWh = ' + money(gridChargeCost) + '.'
+                : 'No grid top-up cost.')
+            : 'Grid charging: ' + number(gridSourceEnergy, 2) + ' kWh × ' + money(gridRate) + '/kWh = ' + money(gridChargeCost) + '.';
+          var chargeLimitReason = storageIncrease <= 1e-8
+            ? 'The battery is already at the selected target.'
+            : targetReached
+              ? 'The selected target charge is reached.'
+              : source === 'yes'
+                ? 'Available surplus solar and grid charging during Charge times leave ' + number(Math.max(0, storageIncrease - energyAddedToBattery), 2) + ' kWh below target.'
+                : 'Grid charging during Charge times leaves ' + number(Math.max(0, storageIncrease - energyAddedToBattery), 2) + ' kWh below target.';
           var dischargeLimitReason = shifted <= 0
             ? 'No charged energy is available to shift into peak use.'
             : shifted + 1e-8 < morningDemand + eveningDemand
@@ -760,15 +781,24 @@
           var remainingInBattery = Math.max(reserveEnergy, afterMorningEnergy - eveningShifted / dischargeEfficiency);
           var afterMorningPercent = Math.min(100, Math.max(minimumCharge, afterMorningEnergy / capacity * 100));
           var remainingChargePercent = Math.min(100, Math.max(minimumCharge, remainingInBattery / capacity * 100));
+          var chargeSourceText = source === 'yes'
+            ? solarSourceEnergy > 1e-8
+              ? gridSourceEnergy > 1e-8 ? 'Solar + grid top-up' : 'Surplus solar only'
+              : gridSourceEnergy > 1e-8 ? 'Grid top-up only' : 'No charge added'
+            : 'Grid only';
           return {
             enabled: true, valid: true, source: source, net: net, shifted: shifted,
             morningShifted: morningShifted, eveningShifted: eveningShifted,
             afterMorningEnergy: afterMorningEnergy, afterMorningPercent: afterMorningPercent,
             avoidedCost: avoidedCost, chargeCost: chargeCost, sourceEnergy: sourceEnergy,
+            solarSourceEnergy: solarSourceEnergy, gridSourceEnergy: gridSourceEnergy,
+            solarEnergyStored: solarEnergyStored, gridEnergyStored: gridEnergyStored,
+            solarChargeCost: solarChargeCost, gridChargeCost: gridChargeCost,
+            chargeSourceText: chargeSourceText, targetReached: targetReached,
             chargePercent: chargePercent, minimumCharge: minimumCharge, endingCharge: endingCharge,
              chargeCostNote: chargeCostNote, chargeTimeNote: chargeTimeNote, remainingInBattery: remainingInBattery,
             remainingChargePercent: remainingChargePercent, peakDemand: morningDemand + eveningDemand,
-            message: 'Battery is included. ' + chargeLimitReason + ' ' + dischargeLimitReason + ' It adds ' + number(energyAddedToBattery, 2) + ' kWh to storage, shifts ' + number(morningShifted, 2) + ' kWh during the Morning peak, then ' + number(eveningShifted, 2) + ' kWh during the Evening peak. About ' + number(afterMorningEnergy, 2) + ' kWh (' + number(afterMorningPercent, 1) + '%) remains after morning use and ' + number(remainingInBattery, 2) + ' kWh (' + number(remainingChargePercent, 1) + '%) after both peaks. Assumes 95% charge and 95% discharge efficiency; remaining charge is not credited as additional savings in this one-day estimate.'
+            message: 'Battery is included. ' + chargeLimitReason + ' ' + dischargeLimitReason + ' It stores ' + number(energyAddedToBattery, 2) + ' kWh (' + number(solarEnergyStored, 2) + ' kWh from solar and ' + number(gridEnergyStored, 2) + ' kWh from grid), then shifts ' + number(morningShifted, 2) + ' kWh during the Morning peak and ' + number(eveningShifted, 2) + ' kWh during the Evening peak. About ' + number(afterMorningEnergy, 2) + ' kWh (' + number(afterMorningPercent, 1) + '%) remains after morning use and ' + number(remainingInBattery, 2) + ' kWh (' + number(remainingChargePercent, 1) + '%) after both peaks. Assumes 95% charge and 95% discharge efficiency; remaining charge is not credited as additional savings in this one-day estimate.'
           };
         };
         var scheduleWindowText = function (startId, endId) {
@@ -811,8 +841,15 @@
               : offPeak.map(function (segment) { return scheduleClock(segment.start) + '–' + scheduleClock(segment.end); }).join(', ') + ' · ' + number(offPeakMinutes / 60, 2) + ' hours outside both peaks';
           set('scheduleSolarTime', scheduleWindowText('solarStart', 'solarEnd') + ' · average home use applies in this window');
           set('scheduleOffPeakTime', offPeakText);
-          set('scheduleChargeTitle', solarCharging ? 'Charge times · surplus solar' : 'Charge times · grid');
-          set('scheduleChargeTime', scheduleWindowText('batteryChargeStart', 'batteryChargeEnd') + (batteryEnabled ? '' : ' · battery estimate off'));
+          set('scheduleChargeTitle', solarCharging ? 'Grid top-up window' : 'Grid charging window');
+          var chargeWindowNote = !batteryEnabled
+            ? ' · battery estimate off'
+            : !battery || !battery.valid
+              ? ''
+              : battery.gridSourceEnergy > 1e-8
+                ? ' · estimated ' + number(battery.gridSourceEnergy, 2) + ' kWh ' + (solarCharging ? 'grid top-up' : 'grid charge')
+                : solarCharging ? ' · no grid top-up needed' : ' · no grid charge estimated';
+          set('scheduleChargeTime', scheduleWindowText('batteryChargeStart', 'batteryChargeEnd') + chargeWindowNote);
           set('scheduleMorningPeakTime', scheduleWindowText('batteryMorningStart', 'batteryMorningEnd'));
           set('scheduleEveningPeakTime', scheduleWindowText('batteryPeakStart', 'batteryPeakEnd'));
           var dischargeText = function (windowText, shifted, remaining, finalWindow) {
@@ -859,10 +896,11 @@
           document.getElementById('batteryPeakHours').value = eveningHours == null ? '' : String(eveningHours);
           updateScheduleChart(null);
           var solarCharging = document.getElementById('batterySolar').value === 'yes';
-          document.getElementById('batteryGridRate').disabled = solarCharging;
+          var chargeStrategyText = solarCharging ? 'Solar first · grid top-up if needed' : 'Grid only during Charge times';
+          document.getElementById('batteryGridRate').disabled = false;
           document.getElementById('batteryGridRateHint').textContent = solarCharging
-            ? 'Not used while charging from solar; Charge times still limit the charging window.'
-            : 'Enter the grid rate during Charge times; for example, £0.07 = 7p/kWh.';
+            ? 'Enter the rate for any grid top-up during Charge times; for example, £0.07 = 7p/kWh. Leave blank if solar reaches the target.'
+            : 'Enter the grid rate used during Charge times; for example, £0.07 = 7p/kWh.';
           var valid = ids.every(function (id) {
             var raw = document.getElementById(id).value;
             return raw.trim() !== '' && Number.isFinite(Number(raw)) && Number(raw) >= 0;
@@ -872,7 +910,7 @@
             set('benefitCopy', 'Complete the figures to see your estimate.');
             set('batteryStatus', 'Complete the solar setup figures before calculating battery savings.');
             ['batteryChargeShare', 'batteryChargeCost', 'batteryEnergyShifted', 'batteryAvoidedCost', 'batteryRemainingPercent', 'batteryRemainingEnergy', 'batteryNetSaving'].forEach(function (id) { set(id, '—'); });
-            set('batteryChargeSource', document.getElementById('batterySolar').value === 'yes' ? 'Battery charge from surplus solar' : 'Battery charge from grid during Charge times');
+            set('batteryChargeSource', chargeStrategyText);
             set('batteryChargeState', 'Complete the setup figures to estimate the battery charge percentage.');
             set('batteryChargeCostNote', 'Complete the setup figures to estimate charging cost.');
              set('batteryChargeTimeNote', 'Complete the setup figures to estimate charging time.');
@@ -912,7 +950,7 @@
           if (battery.enabled && !battery.valid) {
             set('batteryStatus', battery.message);
             ['batteryChargeShare', 'batteryChargeCost', 'batteryEnergyShifted', 'batteryAvoidedCost', 'batteryRemainingPercent', 'batteryRemainingEnergy', 'batteryNetSaving'].forEach(function (id) { set(id, '—'); });
-             set('batteryChargeSource', document.getElementById('batterySolar').value === 'yes' ? 'Battery charge from surplus solar' : 'Battery charge from grid during Charge times');
+             set('batteryChargeSource', chargeStrategyText);
             set('batteryChargeState', 'Complete the battery inputs to estimate the charge percentage.');
             set('batteryChargeCostNote', battery.message);
              set('batteryChargeTimeNote', battery.message);
@@ -921,7 +959,7 @@
             set('potentialCopy', 'Battery is on but its inputs need attention; the totals currently show the solar-only estimate.');
           } else if (battery.enabled) {
             set('batteryStatus', battery.message);
-            set('batteryChargeSource', battery.source === 'yes' ? 'Battery charge from surplus solar' : 'Battery charge from grid during Charge times');
+            set('batteryChargeSource', battery.chargeSourceText);
             set('batteryChargeShare', number(battery.chargePercent, 1) + '%');
             set('batteryChargeState', 'Of full capacity · reserve ' + number(battery.minimumCharge, 0) + '% → ' + number(battery.endingCharge, 1) + '% after charging');
             set('batteryChargeCostNote', battery.chargeCostNote);
@@ -938,7 +976,7 @@
           } else {
             set('batteryStatus', 'Battery calculations are off; the solar-only estimate is unchanged.');
             ['batteryChargeShare', 'batteryChargeCost', 'batteryEnergyShifted', 'batteryAvoidedCost', 'batteryRemainingPercent', 'batteryRemainingEnergy', 'batteryNetSaving'].forEach(function (id) { set(id, '—'); });
-            set('batteryChargeSource', document.getElementById('batterySolar').value === 'yes' ? 'Battery charge from surplus solar' : 'Battery charge from grid during Charge times');
+            set('batteryChargeSource', chargeStrategyText);
             set('batteryChargeState', 'Turn on battery calculations to estimate the charge percentage.');
             set('batteryChargeCostNote', 'Turn on battery calculations to estimate charging cost.');
              set('batteryChargeTimeNote', 'Turn on battery calculations to estimate charging time.');
@@ -1000,7 +1038,6 @@
           card: '#fbfaf7',
           text: '#22383c',
           accent: '#2e7f73',
-          batteryButton: '#f5f0e8',
           font: 'classic',
           headingBold: false
         };
@@ -1010,18 +1047,6 @@
         var appearance = {};
         var root = document.documentElement.style;
         var validColor = function (value, fallback) { return hexColor.test(String(value || '')) ? value : fallback; };
-        var contrastText = function (hex) {
-          var colorLuminance = function (color) {
-            var channels = color.slice(1).match(/.{2}/g).map(function (channel) { return parseInt(channel, 16) / 255; });
-            return channels.map(function (channel) {
-              return channel <= 0.04045 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
-            }).reduce(function (total, channel, index) { return total + channel * [0.2126, 0.7152, 0.0722][index]; }, 0);
-          };
-          var luminance = colorLuminance(hex);
-          var darkContrast = (luminance + 0.05) / (colorLuminance('#22383c') + 0.05);
-          var lightContrast = (colorLuminance('#fbfaf7') + 0.05) / (luminance + 0.05);
-          return darkContrast >= lightContrast ? '#22383c' : '#fbfaf7';
-        };
         var loadAppearance = function () {
           var saved = null;
           try { saved = JSON.parse(localStorage.getItem(appearanceKey) || 'null'); } catch (_) {}
@@ -1031,7 +1056,6 @@
             card: validColor(saved.card, appearanceDefaults.card),
             text: validColor(saved.text, appearanceDefaults.text),
             accent: validColor(saved.accent, appearanceDefaults.accent),
-            batteryButton: validColor(saved.batteryButton, appearanceDefaults.batteryButton),
             font: fontOptions[saved.font] ? saved.font : appearanceDefaults.font,
             headingBold: Boolean(saved.headingBold)
           };
@@ -1047,8 +1071,6 @@
           root.setProperty('--card', appearance.card);
           root.setProperty('--foreground', appearance.text);
           root.setProperty('--primary', appearance.accent);
-           root.setProperty('--battery-button', appearance.batteryButton);
-           root.setProperty('--battery-button-foreground', contrastText(appearance.batteryButton));
            // The page uses three aliases (sans, serif and mono) for different
            // typographic roles. Set every alias together so no role stays on a
            // stale family when the user changes the appearance font.
@@ -1062,7 +1084,6 @@
           document.getElementById('theme-card').value = appearance.card;
           document.getElementById('theme-text').value = appearance.text;
           document.getElementById('theme-accent').value = appearance.accent;
-           document.getElementById('theme-battery-button').value = appearance.batteryButton;
           document.getElementById('theme-font').value = appearance.font;
           document.getElementById('theme-heading-bold').checked = appearance.headingBold;
         };
@@ -1072,7 +1093,6 @@
             card: validColor(document.getElementById('theme-card').value, appearanceDefaults.card),
             text: validColor(document.getElementById('theme-text').value, appearanceDefaults.text),
             accent: validColor(document.getElementById('theme-accent').value, appearanceDefaults.accent),
-            batteryButton: validColor(document.getElementById('theme-battery-button').value, appearanceDefaults.batteryButton),
             font: fontOptions[document.getElementById('theme-font').value] ? document.getElementById('theme-font').value : appearanceDefaults.font,
             headingBold: document.getElementById('theme-heading-bold').checked
           };
@@ -1087,7 +1107,7 @@
           this.setAttribute('aria-expanded', String(open));
           this.textContent = open ? 'Hide appearance settings' : 'Customise appearance';
         });
-        ['theme-background', 'theme-card', 'theme-text', 'theme-accent', 'theme-battery-button', 'theme-font', 'theme-heading-bold'].forEach(function (id) {
+        ['theme-background', 'theme-card', 'theme-text', 'theme-accent', 'theme-font', 'theme-heading-bold'].forEach(function (id) {
           var control = document.getElementById(id);
           control.addEventListener('input', saveAppearance);
           control.addEventListener('change', saveAppearance);
