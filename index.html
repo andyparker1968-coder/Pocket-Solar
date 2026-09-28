@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#1a3034">
+    <meta name="theme-color" content="#ffffff">
     <meta name="description" content="Estimate how much your solar setup could save by offsetting average home electricity usage.">
     <title>Pocket Solar</title>
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAArlBMVEXm5eLi4d3kzsPj2Mvt0LLwzJDotVHYs5vc4uHa2tbh3tnxz23uxlner0TKuKzQdkrf4N7WelLJycbssXHM1NTXxLjml2vVk2vsuI22iHXcilu1mIrVs2naxY3pp3myrajXmTi3o5rpqoPV0s2ybE7njVDRs5DomGjTzcvni1atfGjVjlXGajm2ZDm5t7TXbjnldTbsgT6xVy6ZXUe0sa2hUzKlk4qsrKm+wL2alpM164w9AAAAAW9yTlQBz6J3mgAAAcVJREFUOMu1012TmyAUBmBdURcwoqDGaMpG0aiJH6lxk/r//1gJ6Wy7jr3a2dfL83DgwKhp3xD9Iy+Gpq8WVAAwLfsV/qeOEATY2bjwD9CXyyFCAGPienCt+aOBbgDT9ClaBR70NN0wMfODVYAQMkLvxcTRFsIV4BkAxNErwCzaPcFyAyAHdLBpxUmqwKK/BCbA+x+Yx/7bAyzG83Qoj3/IYM5j4i4BMgx5tjh2iCvynBd0ATSTxaV1dDAjNOS8WgCkw5gx51gzFpEAVLw5wU9AgybjzsENeR6dArvi/u4vkHeDhLm3HKugYZQnO5hXFUk/gKbL3Td7t8TnIrAjLku8qdrsCeQHsMXYxrWbijzWRiSDVdl0vQJyNOAcz5bT0bishhRGjSyJsiw7qgAvrcMxTLayeVQ2bSYS3+9oePl5KZ7gXLKxt89Je4KJX3Z9SC7DlYZpmk1CATIM7/RIzt1O+MNlpPZAyCmAlNaqLrS2ba9025H3WzgMci2d7tMvIVRVdRjH8doXY3Gdp9ttnqd+mqZeJaRUMi1Lb3N/n+f5Pt0feVOZFFMAikA2rGv6OXVdC7WRJi8ZrkY8889zo2cW7uu/8m9PODaP3CdSkwAAAABJRU5ErkJggg==" />
@@ -18,6 +18,7 @@
         --border: #ded8cc;
         --muted: #eee9df;
         --muted-foreground: #6d7c7d;
+        --danger: #b42318;
         --primary: #489fd4;
         --primary-dark: #1a3034;
         --primary-foreground: #fbfaf7;
@@ -72,9 +73,9 @@
       input:focus { outline: 2px solid rgba(46, 127, 115, .24); border-color: var(--primary); }
       .input-wrap { position: relative; display: flex; align-items: center; }
       .input-wrap input { padding-right: 62px; }
-       .time-range { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px; }
-        .time-range input { min-width: 0; padding: 0 12px; text-align: center; background: var(--background); }
-       .time-range-separator { color: var(--muted-foreground); font: 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+       .time-range { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 32px; width: 100%; min-width: 0; }
+       .time-range > input[type="time"] { display: block; width: 100%; min-width: 0; min-inline-size: 0; max-width: 100%; padding: 0 8px; text-align: center; background: var(--background); }
+       .time-range-separator { position: absolute; z-index: 1; top: 50%; left: 50%; display: grid; width: 28px; place-items: center; padding: 0; transform: translate(-50%, -50%); border-radius: 999px; background: var(--card); color: var(--muted-foreground); font: 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; pointer-events: none; }
         input.calculated-input { border-color: var(--primary); background: var(--background); color: var(--foreground); cursor: default; }
        input.calculated-input + .suffix { color: var(--foreground); }
        input.calculated-input:focus { outline-color: var(--primary); }
@@ -100,6 +101,9 @@
        .battery-collapse:focus-visible { outline: 3px solid rgba(46, 127, 115, .3); outline-offset: 3px; }
         .battery-collapse[aria-expanded="false"] { transform: rotate(-90deg); }
         .battery-collapse span { display: block; line-height: 1; }
+       .battery-toggle-summary { margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--background); color: var(--muted-foreground); font-size: 11px; line-height: 1.45; }
+       .battery-toggle-summary[data-state="included"] { color: var(--primary); font-weight: 600; }
+       .battery-toggle-summary[data-state="needs-input"] { color: var(--danger); }
        .battery-body[hidden] { display: none; }
        .battery-intro { max-width: 680px; margin: 14px 0 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.55; }
        .battery-fields { margin-top: 24px; }
@@ -317,7 +321,7 @@
                 </div>
                 <div class="field">
                   <label for="costPerKwh">Cost per 1,000 W (1 kW) <span>25p = £0.25 / kWh</span></label>
-                  <div class="input-wrap prefix"><input id="costPerKwh" type="number" min="0" step="any" value="0.00"></div>
+                  <div class="input-wrap prefix"><input id="costPerKwh" type="number" min="0" step="any" value="0.25"></div>
                   <p class="hint">25p = £0.25 / kWh</p>
                 </div>
                 <div class="field">
@@ -342,7 +346,7 @@
             <section class="benefit">
               <div class="benefit-inner">
                 <div class="benefit-top"><p class="section-label">03 — Daily total benefit</p><span class="arrow">↑</span></div>
-                <p class="amount" id="totalBenefit">£0.02</p>
+                <p class="amount" id="totalBenefit">£2.57</p>
                 <p class="benefit-copy" id="benefitCopy">Home-use savings plus earnings from surplus energy exported in one day.</p>
               </div>
             </section>
@@ -350,13 +354,13 @@
               <div class="breakdown-head"><span class="section-label">The quick breakdown</span><span>GBP / day</span></div>
               <div class="breakdown-rows">
                 <div class="row"><span>Solar used at home</span><strong id="homeCovered">1,000 W</strong></div>
-                <div class="row"><span>Grid cost × output hours</span><strong id="rateHours">£0.00 / kWh × 6 hrs</strong></div>
+                <div class="row"><span>Grid cost × output hours</span><strong id="rateHours">£0.25 / kWh × 5 hrs</strong></div>
                 <div class="row"><span>Total feed-in watts</span><strong id="feedInBreakdown">2.2 kW</strong></div>
-                <div class="row"><span id="feedInLabel">Feed-in earnings</span><strong id="feedInEarnings">£0.02</strong></div>
-                <div class="row"><span>Solar-only benefit</span><strong id="solarOnlyBreakdown">£0.02</strong></div>
+                <div class="row"><span id="feedInLabel">Feed-in earnings</span><strong id="feedInEarnings">£1.32</strong></div>
+                <div class="row"><span>Solar-only benefit</span><strong id="solarOnlyBreakdown">£2.57</strong></div>
                 <div class="row"><span>Battery net saving / cost</span><strong id="batteryNetBreakdown">Off</strong></div>
-                <div class="row total"><strong>Total benefit</strong><strong id="totalBreakdown">£0.02</strong></div>
-                <div class="formula">Home savings = (solar used at home / 1,000) × (grid cost per kWh × output hours)<strong id="homeFormula">(1,000 ÷ 1,000) × (£0.00 × 6)</strong>Feed-in earnings = surplus (kW) × feed-in tariff (£/kWh) × output hours<strong id="feedFormula">(2.2 × £0.12 × 6)</strong></div>
+                <div class="row total"><strong>Total benefit</strong><strong id="totalBreakdown">£2.57</strong></div>
+                <div class="formula">Home savings = (solar used at home / 1,000) × (grid cost per kWh × output hours)<strong id="homeFormula">(1,000 ÷ 1,000) × (£0.25 × 5)</strong>Feed-in earnings = surplus (kW) × feed-in tariff (£/kWh) × output hours<strong id="feedFormula">(2.2 × £0.12 × 5)</strong></div>
               </div>
             </section>
           </div>
@@ -370,6 +374,7 @@
               <button class="battery-collapse chevron" type="button" id="battery-collapse" aria-label="Roll up battery" title="Roll up battery" aria-expanded="true" aria-controls="battery-body"><span aria-hidden="true">⌃</span></button>
             </div>
           </div>
+            <p class="battery-toggle-summary" id="batteryToggleSummary" data-state="off">Battery estimate off; the daily total shows solar only.</p>
           <div class="battery-body" id="battery-body">
             <p class="battery-intro">Estimate one charge-and-use cycle across the morning and evening peak windows. With solar selected, surplus solar charges the battery first; grid power during Charge times tops it up if it is still below target. Solar energy is valued at the feed-in tariff and grid top-up at your Charge-times tariff. Off-peak home usage is separate from charging.</p>
             <div class="fields battery-fields">
@@ -404,13 +409,13 @@
               </div>
               <div class="field">
                 <label for="batteryGridRate">Grid charging tariff <span>Charge-times rate</span></label>
-                <div class="input-wrap prefix"><input id="batteryGridRate" type="number" min="0" step="any" placeholder="e.g. 0.07"><span class="suffix">/ kWh</span></div>
-                <p class="hint" id="batteryGridRateHint">Enter the rate charged during Charge times; for example, £0.07 = 7p/kWh.</p>
+                <div class="input-wrap prefix"><input id="batteryGridRate" type="number" min="0" step="any" value="0.07" placeholder="e.g. 0.07"><span class="suffix">/ kWh</span></div>
+                <p class="hint" id="batteryGridRateHint">Default: £0.07/kWh. Change it to your Charge-times grid rate.</p>
               </div>
               <div class="field">
                 <label for="batteryPeakRate">Peak import tariff <span>Rate avoided</span></label>
-                <div class="input-wrap prefix"><input id="batteryPeakRate" type="number" min="0" step="any" placeholder="e.g. 0.25"><span class="suffix">/ kWh</span></div>
-                <p class="hint">Enter £/kWh (e.g. £0.25 = 25p); this rate applies to both peak windows.</p>
+                <div class="input-wrap prefix"><input id="batteryPeakRate" type="number" min="0" step="any" value="0.25" placeholder="e.g. 0.25"><span class="suffix">/ kWh</span></div>
+                <p class="hint">Default: £0.25/kWh (25p). Adjust to your actual rate; it applies to both peak windows.</p>
               </div>
               <div class="field">
                 <label for="batteryPower">Charge/discharge power <span>Maximum rate</span></label>
@@ -491,7 +496,7 @@
             <p id="potentialCopy">Based on the same daily output repeating. Includes home-use savings and feed-in earnings.</p>
           </div>
           <div class="stats">
-            <div class="stat"><span class="stat-label">One day</span><strong id="dailyBenefit">£0.02</strong><p>Your daily estimated benefit</p></div>
+            <div class="stat"><span class="stat-label">One day</span><strong id="dailyBenefit">£2.57</strong><p>Your daily estimated benefit</p></div>
             <div class="stat"><span class="stat-label">30 days</span><strong id="monthlyBenefit">£0.48</strong><p>Daily benefit × 30</p></div>
             <div class="stat"><span class="stat-label">One year</span><strong id="annualBenefit">£5.78</strong><p>Daily benefit × 365</p></div>
           </div>
@@ -594,8 +599,8 @@
         var batteryIds = ['batteryCapacity', 'batteryStart', 'batteryTarget', 'batteryChargeHours', 'batteryGridRate', 'batteryPeakRate', 'batteryPower', 'batterySolar', 'batteryPeakUsage', 'batteryMorningHours', 'batteryPeakHours'];
         var allIds = ids.concat(solarTimeIds, batteryIds, batteryTimeIds, ['batteryOffPeakUsage']);
         var defaults = {
-          totalSolar: '4000', effectiveOutput: '3200', solarStart: '10:00', solarEnd: '15:00', outputHours: '5', homeUsage: '1000', costPerKwh: '0.00', feedInTariff: '0.12',
-          batteryCapacity: '10', batteryStart: '20', batteryTarget: '100', batteryChargeStart: '23:00', batteryChargeEnd: '02:00', batteryChargeHours: '3', batteryGridRate: '', batteryPeakRate: '', batteryPower: '3.5',
+          totalSolar: '4000', effectiveOutput: '3200', solarStart: '10:00', solarEnd: '15:00', outputHours: '5', homeUsage: '1000', costPerKwh: '0.25', feedInTariff: '0.12',
+          batteryCapacity: '10', batteryStart: '20', batteryTarget: '100', batteryChargeStart: '23:00', batteryChargeEnd: '02:00', batteryChargeHours: '3', batteryGridRate: '0.07', batteryPeakRate: '0.25', batteryPower: '3.5',
           batterySolar: 'yes', batteryPeakUsage: '1', batteryOffPeakUsage: '1', batteryMorningStart: '07:00', batteryMorningEnd: '09:00', batteryMorningHours: '2',
           batteryPeakStart: '15:00', batteryPeakEnd: '18:00', batteryPeakHours: '3'
         };
@@ -608,6 +613,7 @@
         };
         var tariffStorageFormat = 'gbp-per-kwh-v1';
         var timeRangeStorageFormat = 'clock-ranges-v2';
+        var rateDefaultsFormat = 'solar-tariff-defaults-v1';
         var read = function (id) { return Number(document.getElementById(id).value); };
         var set = function (id, value) { document.getElementById(id).textContent = value; };
         var clockMinutes = function (value) {
@@ -678,6 +684,7 @@
             values.batteryEnabled = document.getElementById('batteryEnabled').checked;
             values.batteryTariffFormat = tariffStorageFormat;
             values.timeRangeFormat = timeRangeStorageFormat;
+            values.rateDefaultsFormat = rateDefaultsFormat;
             localStorage.setItem('pocket-solar-standalone', JSON.stringify(values));
           } catch (_) {}
         };
@@ -685,7 +692,7 @@
           var enabled = document.getElementById('batteryEnabled').checked;
           if (!enabled) return { enabled: false, valid: true, net: 0 };
           var source = document.getElementById('batterySolar').value;
-          var requiredIds = batteryIds.filter(function (id) { return id !== 'batterySolar' && (id !== 'batteryGridRate' || source === 'no'); });
+          var requiredIds = batteryIds.filter(function (id) { return id !== 'batterySolar' && id !== 'batteryGridRate' && id !== 'batteryPeakRate'; });
           var missing = requiredIds.filter(function (id) {
             var raw = document.getElementById(id).value.trim();
             return raw === '' || !Number.isFinite(Number(raw));
@@ -702,19 +709,15 @@
           var gridRate = Number(gridRateRaw);
           var peakRateRaw = document.getElementById('batteryPeakRate').value.trim();
           var peakRate = Number(peakRateRaw);
-          if (missing.length) {
-            if (peakRateRaw === '' && source === 'no' && gridRateRaw === '') return { enabled: true, valid: false, net: 0, message: 'Enter both your peak import tariff and Charge-times grid tariff to estimate battery savings.' };
-            if (peakRateRaw === '') return { enabled: true, valid: false, net: 0, message: 'Enter your peak import tariff to calculate the cost avoided during peak use.' };
-            if (source === 'no' && gridRateRaw === '') return { enabled: true, valid: false, net: 0, message: 'Enter your grid charging tariff for Charge times to include grid charging.' };
-            return { enabled: true, valid: false, net: 0, message: 'Complete the battery fields to include its estimate.' };
-          }
+          if (missing.length) return { enabled: true, valid: false, moneyValid: false, net: null, message: 'Complete the battery fields to calculate its energy estimate.' };
           if (capacity <= 0) return { enabled: true, valid: false, net: 0, message: 'Battery capacity must be greater than zero.' };
           if (minimumCharge < 0 || minimumCharge > 100 || target < 0 || target > 100 || target < minimumCharge) return { enabled: true, valid: false, net: 0, message: 'Use charge percentages from 0–100, with target charge at least as high as the minimum discharge reserve.' };
           if (chargingHours < 0 || chargingHours > 24 || morningHours < 0 || morningHours > 24 || eveningHours < 0 || eveningHours > 24 || peakUsePerHour < 0) return { enabled: true, valid: false, net: 0, message: 'Hours must be from 0–24 and peak usage cannot be negative.' };
           if (chargingPower < 0.1 || chargingPower > 10) return { enabled: true, valid: false, net: 0, message: 'Charging/discharging power must be between 0.1 and 10 kW.' };
           if (gridRateRaw !== '' && !Number.isFinite(gridRate)) return { enabled: true, valid: false, net: 0, message: 'Enter a valid grid charging tariff.' };
           if (gridRateRaw !== '' && gridRate < 0) return { enabled: true, valid: false, net: 0, message: 'Grid charging tariff cannot be negative.' };
-          if (peakRate < 0) return { enabled: true, valid: false, net: 0, message: 'Peak import tariff cannot be negative.' };
+          if (peakRateRaw !== '' && !Number.isFinite(peakRate)) return { enabled: true, valid: false, moneyValid: false, net: null, message: 'Enter a valid peak import tariff.' };
+          if (peakRateRaw !== '' && peakRate < 0) return { enabled: true, valid: false, moneyValid: false, net: null, message: 'Peak import tariff cannot be negative.' };
           if (source !== 'yes' && source !== 'no') return { enabled: true, valid: false, net: 0, message: 'Choose whether to use solar or grid power to charge.' };
           if (windowsOverlap('batteryMorningStart', 'batteryMorningEnd', 'batteryPeakStart', 'batteryPeakEnd')) return { enabled: true, valid: false, net: 0, message: 'Morning and Evening peak times overlap. Adjust the windows so each hour is counted only once.' };
           var chargeEfficiency = 0.95;
@@ -731,7 +734,6 @@
           var remainingStorageTarget = Math.max(0, storageIncrease - solarEnergyStored);
           var gridWindowLimit = chargingPower * chargingHours;
           var gridSourceEnergy = Math.min(gridWindowLimit, remainingStorageTarget / chargeEfficiency);
-          if (source === 'yes' && gridSourceEnergy > 1e-8 && gridRateRaw === '') return { enabled: true, valid: false, net: 0, message: 'Surplus solar will not reach your target. Enter the Charge-times grid tariff to include the grid top-up.' };
           var gridEnergyStored = gridSourceEnergy * chargeEfficiency;
           var energyAddedToBattery = solarEnergyStored + gridEnergyStored;
           var sourceEnergy = solarSourceEnergy + gridSourceEnergy;
@@ -743,10 +745,19 @@
           var availableForEvening = Math.max(0, afterMorningEnergy - reserveEnergy) * dischargeEfficiency;
           var eveningShifted = Math.min(availableForEvening, eveningDemand, chargingPower * eveningHours);
           var shifted = morningShifted + eveningShifted;
-          var avoidedCost = shifted * peakRate;
+          var avoidedCost = peakRateRaw === '' ? null : shifted * peakRate;
           var solarChargeCost = solarSourceEnergy * feedInTariff;
-          var gridChargeCost = gridSourceEnergy * gridRate;
-          var chargeCost = solarChargeCost + gridChargeCost;
+          var gridChargeCost = gridSourceEnergy > 1e-8 && gridRateRaw === '' ? null : gridSourceEnergy * gridRate;
+          var chargeCost = gridChargeCost === null ? null : solarChargeCost + gridChargeCost;
+          var missingTariffs = [];
+          if (peakRateRaw === '') missingTariffs.push('peak import tariff');
+          if (gridSourceEnergy > 1e-8 && gridRateRaw === '') missingTariffs.push('Charge-times grid tariff');
+          var moneyValid = missingTariffs.length === 0;
+          var priceMessage = missingTariffs.length === 2
+            ? 'Enter your peak import tariff and Charge-times grid tariff to include battery savings in the daily total.'
+            : missingTariffs.length === 1
+              ? 'Enter your ' + missingTariffs[0] + ' to include battery savings in the daily total.'
+              : '';
           var chargePercent = Math.min(100, Math.max(0, energyAddedToBattery / capacity * 100));
           var endingCharge = Math.min(target, minimumCharge + chargePercent);
           var solarHoursUsed = solarChargeRate > 0 ? solarSourceEnergy / solarChargeRate : 0;
@@ -769,9 +780,15 @@
           var chargeCostNote = source === 'yes'
             ? 'Solar export value: ' + number(solarSourceEnergy, 2) + ' kWh × ' + money(feedInTariff) + '/kWh = ' + money(solarChargeCost) + '. ' +
               (gridSourceEnergy > 1e-8
-                ? 'Grid top-up: ' + number(gridSourceEnergy, 2) + ' kWh × ' + money(gridRate) + '/kWh = ' + money(gridChargeCost) + '.'
+                ? gridRateRaw === ''
+                  ? 'Grid top-up cost needs your Charge-times grid tariff.'
+                  : 'Grid top-up: ' + number(gridSourceEnergy, 2) + ' kWh × ' + money(gridRate) + '/kWh = ' + money(gridChargeCost) + '.'
                 : 'No grid top-up cost.')
-            : 'Grid charging: ' + number(gridSourceEnergy, 2) + ' kWh × ' + money(gridRate) + '/kWh = ' + money(gridChargeCost) + '.';
+            : gridSourceEnergy > 1e-8
+              ? gridRateRaw === ''
+                ? 'Grid charging cost needs your Charge-times grid tariff.'
+                : 'Grid charging: ' + number(gridSourceEnergy, 2) + ' kWh × ' + money(gridRate) + '/kWh = ' + money(gridChargeCost) + '.'
+              : 'No grid charging was needed.';
           var chargeLimitReason = storageIncrease <= 1e-8
             ? 'The battery is already at the selected target.'
             : targetReached
@@ -784,7 +801,7 @@
             : shifted + 1e-8 < morningDemand + eveningDemand
               ? 'Peak shifting is limited by available battery energy, modeled home use, or discharge power.'
               : 'Modeled battery energy covers the requested home use across both peak windows.';
-          var net = avoidedCost - chargeCost;
+          var net = moneyValid ? avoidedCost - chargeCost : null;
           var remainingInBattery = Math.max(reserveEnergy, afterMorningEnergy - eveningShifted / dischargeEfficiency);
           var afterMorningPercent = Math.min(100, Math.max(minimumCharge, afterMorningEnergy / capacity * 100));
           var remainingChargePercent = Math.min(100, Math.max(minimumCharge, remainingInBattery / capacity * 100));
@@ -794,7 +811,7 @@
               : gridSourceEnergy > 1e-8 ? 'Grid top-up only' : 'No charge added'
             : 'Grid only';
           return {
-            enabled: true, valid: true, source: source, net: net, shifted: shifted,
+            enabled: true, valid: true, moneyValid: moneyValid, missingTariffs: missingTariffs, priceMessage: priceMessage, source: source, net: net, shifted: shifted,
             morningShifted: morningShifted, eveningShifted: eveningShifted,
             afterMorningEnergy: afterMorningEnergy, afterMorningPercent: afterMorningPercent,
             avoidedCost: avoidedCost, chargeCost: chargeCost, sourceEnergy: sourceEnergy,
@@ -805,7 +822,7 @@
             chargePercent: chargePercent, minimumCharge: minimumCharge, endingCharge: endingCharge,
              chargeCostNote: chargeCostNote, chargeTimeNote: chargeTimeNote, remainingInBattery: remainingInBattery,
             remainingChargePercent: remainingChargePercent, peakDemand: morningDemand + eveningDemand,
-            message: 'Battery is included. ' + chargeLimitReason + ' ' + dischargeLimitReason + ' It stores ' + number(energyAddedToBattery, 2) + ' kWh (' + number(solarEnergyStored, 2) + ' kWh from solar and ' + number(gridEnergyStored, 2) + ' kWh from grid), then shifts ' + number(morningShifted, 2) + ' kWh during the Morning peak and ' + number(eveningShifted, 2) + ' kWh during the Evening peak. About ' + number(afterMorningEnergy, 2) + ' kWh (' + number(afterMorningPercent, 1) + '%) remains after morning use and ' + number(remainingInBattery, 2) + ' kWh (' + number(remainingChargePercent, 1) + '%) after both peaks. Assumes 95% charge and 95% discharge efficiency; remaining charge is not credited as additional savings in this one-day estimate.'
+            message: (moneyValid ? 'Battery is included. ' : 'Battery energy is calculated but not included in the money total. ' + priceMessage + ' ') + chargeLimitReason + ' ' + dischargeLimitReason + ' It stores ' + number(energyAddedToBattery, 2) + ' kWh (' + number(solarEnergyStored, 2) + ' kWh from solar and ' + number(gridEnergyStored, 2) + ' kWh from grid), then shifts ' + number(morningShifted, 2) + ' kWh during the Morning peak and ' + number(eveningShifted, 2) + ' kWh during the Evening peak. About ' + number(afterMorningEnergy, 2) + ' kWh (' + number(afterMorningPercent, 1) + '%) remains after morning use and ' + number(remainingInBattery, 2) + ' kWh (' + number(remainingChargePercent, 1) + '%) after both peaks. Assumes 95% charge and 95% discharge efficiency; remaining charge is not credited as additional savings in this one-day estimate.'
           };
         };
         var scheduleWindowText = function (startId, endId) {
@@ -930,8 +947,8 @@
           var chargeStrategyText = solarCharging ? 'Solar first · grid top-up if needed' : 'Grid only during Charge times';
           document.getElementById('batteryGridRate').disabled = false;
           document.getElementById('batteryGridRateHint').textContent = solarCharging
-            ? 'Enter the rate for any grid top-up during Charge times; for example, £0.07 = 7p/kWh. Leave blank if solar reaches the target.'
-            : 'Enter the grid rate used during Charge times; for example, £0.07 = 7p/kWh.';
+            ? 'Default: £0.07/kWh. Change it to your rate for any Charge-times grid top-up; leave blank if solar reaches the target.'
+            : 'Default: £0.07/kWh. Change it to the grid rate used during Charge times.';
           var valid = ids.every(function (id) {
             var raw = document.getElementById(id).value;
             return raw.trim() !== '' && Number.isFinite(Number(raw)) && Number(raw) >= 0;
@@ -940,6 +957,8 @@
              ['totalBenefit', 'dailyBenefit', 'monthlyBenefit', 'annualBenefit', 'homeCovered', 'rateHours', 'feedInKw', 'feedInBreakdown', 'feedInEarnings', 'solarOnlyBreakdown', 'totalBreakdown', 'homeFormula', 'feedFormula'].forEach(function (id) { set(id, '—'); });
             set('benefitCopy', 'Complete the figures to see your estimate.');
             set('batteryStatus', 'Complete the solar setup figures before calculating battery savings.');
+            set('batteryToggleSummary', 'Complete the solar setup above to calculate the battery adjustment.');
+            document.getElementById('batteryToggleSummary').dataset.state = 'needs-input';
             ['batteryChargeShare', 'batteryChargeCost', 'batteryEnergyShifted', 'batteryAvoidedCost', 'batteryRemainingPercent', 'batteryRemainingEnergy', 'batteryNetSaving'].forEach(function (id) { set(id, '—'); });
             set('batteryChargeSource', chargeStrategyText);
             set('batteryChargeState', 'Complete the setup figures to estimate the battery charge percentage.');
@@ -959,8 +978,25 @@
           var surplusKw = Math.max(effective - usage, 0) / 1000;
           var earnings = surplusKw * tariff * outputHours;
           var battery = batteryEstimate(surplusKw, outputHours, tariff);
+          var batterySummary = document.getElementById('batteryToggleSummary');
+          if (!battery.enabled) {
+            batterySummary.textContent = 'Battery off; the daily total shows solar only.';
+            batterySummary.dataset.state = 'off';
+          } else if (!battery.valid) {
+            batterySummary.textContent = battery.message || 'Complete the battery inputs below to calculate its energy estimate.';
+            batterySummary.dataset.state = 'needs-input';
+          } else if (!battery.moneyValid) {
+            batterySummary.textContent = battery.priceMessage + ' Battery energy estimates are shown below; the money total stays solar-only until you add the rates.';
+            batterySummary.dataset.state = 'needs-input';
+          } else if (Math.abs(battery.net) < 0.005) {
+            batterySummary.textContent = 'Battery included; current tariffs produce no net change to the daily total.';
+            batterySummary.dataset.state = 'included';
+          } else {
+            batterySummary.textContent = 'Battery included; it ' + (battery.net > 0 ? 'adds ' : 'reduces ') + money(battery.net) + ' to the daily total.';
+            batterySummary.dataset.state = 'included';
+          }
           updateScheduleChart(battery);
-          var batteryNet = battery.enabled && battery.valid ? battery.net : 0;
+          var batteryNet = battery.enabled && battery.valid && battery.moneyValid ? battery.net : 0;
           var solarOnlyBenefit = homeSavings + earnings;
           var total = solarOnlyBenefit + batteryNet;
           set('totalBenefit', signedMoney(total));
@@ -988,6 +1024,22 @@
             set('batteryNetBreakdown', 'Not included');
             set('benefitCopy', 'Battery is on but its inputs need attention; the total currently shows the solar-only estimate.');
             set('potentialCopy', 'Battery is on but its inputs need attention; the totals currently show the solar-only estimate.');
+          } else if (battery.enabled && !battery.moneyValid) {
+            set('batteryStatus', battery.message);
+            set('batteryChargeSource', battery.chargeSourceText);
+            set('batteryChargeShare', number(battery.chargePercent, 1) + '%');
+            set('batteryChargeState', 'Of full capacity · reserve ' + number(battery.minimumCharge, 0) + '% → ' + number(battery.endingCharge, 1) + '% after charging');
+            set('batteryChargeCostNote', battery.chargeCostNote);
+            set('batteryChargeTimeNote', battery.chargeTimeNote);
+            set('batteryEnergyShifted', number(battery.shifted, 2) + ' kWh');
+            set('batteryAvoidedCost', battery.avoidedCost === null ? '—' : money(battery.avoidedCost));
+            set('batteryRemainingPercent', number(battery.remainingChargePercent, 1) + '%');
+            set('batteryRemainingEnergy', number(battery.remainingInBattery, 2) + ' kWh remains');
+            set('batteryChargeCost', battery.chargeCost === null ? '—' : money(battery.chargeCost));
+            set('batteryNetSaving', '—');
+            set('batteryNetBreakdown', 'Tariffs needed');
+            set('benefitCopy', 'Battery energy is estimated; enter the required tariffs above to include its money effect in the total.');
+            set('potentialCopy', 'Battery energy is estimated, but future totals remain solar-only until the required tariffs are entered.');
           } else if (battery.enabled) {
             set('batteryStatus', battery.message);
             set('batteryChargeSource', battery.chargeSourceText);
@@ -1034,6 +1086,13 @@
               ['batteryGridRate', 'batteryPeakRate'].forEach(function (id) {
                 if (saved[id] != null && saved[id] !== '' && Number.isFinite(Number(saved[id]))) saved[id] = String(Number(saved[id]) / 100);
               });
+            }
+            if (saved.rateDefaultsFormat !== rateDefaultsFormat) {
+              if (saved.costPerKwh == null || String(saved.costPerKwh).trim() === '' || Number(saved.costPerKwh) === 0) saved.costPerKwh = defaults.costPerKwh;
+              ['feedInTariff', 'batteryGridRate', 'batteryPeakRate'].forEach(function (id) {
+                if (saved[id] == null || String(saved[id]).trim() === '') saved[id] = defaults[id];
+              });
+              saved.rateDefaultsFormat = rateDefaultsFormat;
             }
             allIds.forEach(function (id) { if (saved[id] != null) document.getElementById(id).value = saved[id]; });
             if (saved.batteryEnabled != null) document.getElementById('batteryEnabled').checked = Boolean(saved.batteryEnabled);
@@ -1159,4 +1218,4 @@
     </script>
   </body>
 </html>
->
+
